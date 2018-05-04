@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  gusigun: one
+  towncode: MyString
+  emdcode: MyString
+  emdname: MyString
+  findlist: MyString
+
+two:
+  gusigun: two
+  towncode: MyString
+  emdcode: MyString
+  emdname: MyString
+  findlist: MyString

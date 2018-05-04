@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  sido: one
+  wiwid: MyString
+  wiwtypecode: MyString
+  towncode: MyString
+  townname: MyString
+  guname: MyString
+
+two:
+  sido: two
+  wiwid: MyString
+  wiwtypecode: MyString
+  towncode: MyString
+  townname: MyString
+  guname: MyString

@@ -1,0 +1,2 @@
+class Sido < ApplicationRecord
+end
