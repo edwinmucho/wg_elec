@@ -36,7 +36,7 @@ ActiveRecord::Schema.define(version: 20180504112428) do
   end
 
   create_table "sidos", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string "wiwd"
+    t.string "wiwid"
     t.string "wiwname"
     t.string "findlist"
     t.datetime "created_at", null: false
