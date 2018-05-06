@@ -26,3 +26,4 @@ config/secrets.yml
 /config/application.yml
 
 /db/schema.rb
+db/schema.rb
