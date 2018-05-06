@@ -22,5 +22,6 @@ Gemfile.lock
 config/database.yml
 config/secrets.yml
 
+
 # Ignore application configuration
 /config/application.yml
