@@ -43,11 +43,7 @@ class KakaoController < ApplicationController
   $gusigun = ""
   $emd = ""
 
-  user_key = params[:user_key]
 
-  ap "session >>>>>>"
-  ap session.empty?
-  ap session[user_key]
 
   def keyboard
     render json: @@key.getBtnKey(@@main_menu)
@@ -73,6 +69,12 @@ class KakaoController < ApplicationController
                   "다음중 어떤것인가요?.[홈/이전/다시]" => @@key.getBtnKey(@@main_menu)       #FUNC_STEP_ONEMORE_CONFIRM
     }
 
+    user_key = params[:user_key]
+
+    ap "session >>>>>>"
+    ap session.empty?
+    ap session[user_key]
+    
     user_msg = params[:content]
     basic_keyboard = @@key.getBtnKey(@@main_menu)
 
@@ -285,7 +287,7 @@ ap "#######################"
     end
 
     session[user_key] = "AAAAAA"
-    
+
     result = {
       message: @@msg.getMessage(msg.to_s),
       keyboard: basic_keyboard
