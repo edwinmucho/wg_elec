@@ -43,7 +43,11 @@ class KakaoController < ApplicationController
   $gusigun = ""
   $emd = ""
 
-  $seccnt = 0
+  user_key = params[:user_key]
+
+  ap "session >>>>>>"
+  ap session.empty?
+  ap session[user_key]
 
   def keyboard
     render json: @@key.getBtnKey(@@main_menu)
@@ -247,142 +251,6 @@ ap "#######################"
 # ap basic_keyboard
 # ap "########################"
 
-
-      # 디비 저장 부분
-      when MENU_STEP_2JANG
-        dbsave = Juso::JsSave.new
-
-        if user_msg == "시도"
-          sd = dbsave.sidosave
-          file = "./sido.csv"
-          sdn = dbsave.bjsave(file)
-
-          sd["cityCodeMap"].each do |city|
-            ap city["WIWNAME"]
-            Sido.create(wiwid: city["WIWID"], wiwname: city["WIWNAME"], findlist: sdn[city["WIWNAME"]])
-          end
-
-          msg = "시도 저장완료. 일단 끝남. 오래 걸림."
-          basic_keyboard == @@key.getTextKey
-        elsif user_msg == "구시군"
-          dbsave = Juso::JsSave.new
-
-          sido = Sido.all
-
-          sido.each do |si|
-            js = dbsave.gusigunsave(si.wiwid)
-
-            js["gusigunCodeMap"].each do |gsg|
-
-              Gusigun.create(sido_id: si.id, wiwid: si.wiwid, wiwtypecode: gsg["WIWTYPECODE"].to_s,
-                            towncode: gsg["CODE"], townname: gsg["NAME"],
-                            guname: gsg["GUNAME"])
-            end
-          end
-          msg = "구시군 저장 완료!"
-          basic_keyboard == @@key.getTextKey
-        elsif user_msg == "읍면동"
-          dbsave = Juso::JsSave.new
-
-          gusigun = Gusigun.all
-
-          file = "./emd_501.csv"
-          juso = dbsave.bjsave(file)
-          # ap juso
-          #juso[townname] => [{[emdname] => [findlist]}, {...}, {...}]
-          # sp_sd = {"수원시장안구" => ["율천동"],
-          #         "고양시일산동구" => ["식사동"],
-          #         "용인시수지구" => ["죽전1동", "죽전2동"],
-          #         "고양시일산서구" => ["일산2동"],
-          #         "천안시동남구" => ["신방동"],
-          #         "천안시서북구" => ["성정1동","성정2동"],
-          #         "전주시덕진구" => ["인후3동"]}
-
-          ch_si = {"수원시권선구" => "수원시장안구",
-                  "고양시덕양구" => "고양시일산동구",
-                  "용인시기흥구" => "용인시수지구",
-                  "천안시동남구" => "천안시서북구",
-                  "고양시일산동구" => "고양시일산서구",
-                  "천안시서북구" => "천안시동남구",
-                  "전주시완산구" => "전주시덕진구"}
-          ch_tcode = {
-                    "수원시권선구" => "4101", # 수원시장안구 율천동
-                    "고양시덕양구" => "4121", # 고양시일산동구 식사동
-                    "고양시일산동구" => "4122", # 고양시일산서구 일산2동
-                    "용인시기흥구" => "4136", # 용인시수지구 죽전1동, 죽전2동
-                    "천안시서북구" => "4418", #천안시동남구 신방동
-                    "천안시동남구" => "4417", #천안시서북구 성정1동, 성정2동
-                    "전주시완산구" => "4502" # 전주시덕진구 인후3동
-                    }
-          nec_info = {
-                    "수원시권선구" => ["율천동"],
-                    "고양시덕양구" => ["식사동"],
-                    "고양시일산동구" => ["일산2동"],
-                    "용인시기흥구" => ["죽전1동", "죽전2동"],
-                    "천안시서북구" => ["신방동"],
-                    "천안시동남구" => ["성정1동","성정2동"],
-                    "전주시완산구" => ["인후3동"]
-                    }
-
-          glist = []
-          nilist = []
-          clist =[]
-
-          gusigun.each do |gsg|
-            js = dbsave.emdsave(gsg.towncode)
-# ap gsg.townname
-            js["emdMap"].each do |emd|
-              arr = Array.new
-              if juso[gsg.townname].nil?
-                glist.push(gsg.townname)
-                next
-              end
-
-              tname = ""
-              if not nec_info[gsg.townname].nil? and nec_info[gsg.townname].include?(emd["NAME"])
-                tname = ch_si[gsg.townname]
-              else
-                tname = gsg.townname
-              end
-
-              juso[tname].each do |v|
-                if not v[emd["NAME"]].nil?
-                  arr = v[emd["NAME"]]
-                end
-              end
-
-              # ap nec_info[gsg.townname] if not nec_info[gsg.townname].nil?
-              if not nec_info[gsg.townname].nil? and nec_info[gsg.townname].include?(emd["NAME"])
-                ap "   #{gsg.townname}"
-                # ap "or  : #{nec_info[gsg.townname]}" # 동이름
-                # ap "emd : #{emd["NAME"]}"
-                # ap "code: #{ch_tcode[gsg.townname]}" # 저장될 코드
-                # ap "--------------"
-                tmp = gusigun.find_by("towncode": ch_tcode[gsg.townname])
-                ap gsg.id
-                ap tmp.id
-                Emd.create(gusigun_id: tmp.id, towncode: ch_tcode[gsg.townname], emdcode: emd["CODE"], emdname: emd["NAME"], findlist: arr )
-              end
-              Emd.create(gusigun_id: gsg.id, towncode: gsg.towncode, emdcode: emd["CODE"], emdname: emd["NAME"], findlist: arr )
-
-              if arr == [] or arr.nil?
-                glist.push(juso[gsg.townname])
-                nilist.push(emd["NAME"])
-                clist.push(emd["CODE"])
-              end
-            end
-          end
-          # ap glist
-          ap nilist
-          ap clist
-
-          msg = "읍면동 저장 완료!"
-        else
-          @@mstep = MENU_STEP_HOME
-          @@fstep = 0
-          msg = "어떤것을 원하시나요?"
-          basic_keyboard = @@key.getBtnKey(@@main_menu)
-        end
       else
 
         # 메뉴 변경은 이곳에서
@@ -416,7 +284,8 @@ ap "#######################"
         # basic_keyboard = @@key.getTextKey
     end
 
-
+    session[user_key] = "AAAAAA"
+    
     result = {
       message: @@msg.getMessage(msg.to_s),
       keyboard: basic_keyboard
