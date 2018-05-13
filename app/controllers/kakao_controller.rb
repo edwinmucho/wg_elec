@@ -300,9 +300,11 @@ ap "#######################"
 # ap "#######"
     render json: result
   end
+  
   def send_json_to_homepage
     @fin_url
   end
+  
   def friend_add
     user_key = params[:user_key]
     #새로운 유저를 저장해주세요
