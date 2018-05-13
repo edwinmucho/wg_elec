@@ -1,0 +1,38 @@
+<div>
+    <h1>Main page</h1>
+</div>
+
+<form action='/dkdkdlwkd/dlqslek_sido'>
+    <h3>
+    시도 저장 현황  : 
+    <%=@sido_cnt %><br/>
+    <% if @sido_cnt < 10 %>
+        <input type='submit' value='저 to the 장' data-disable-with="Please wait..."> 
+    <%end%>
+    (얼추 17 )<br/>
+    </h3>
+</form>
+<form action='/dkdkdlwkd/dlqslek_gsg'>
+    <h3>
+    구시군 저장 현황 : 
+    <%=@gsg_cnt %><br/>
+    <% if @gsg_cnt < 10 %>
+        <input type='submit' value='맘속에 저장!' data-disable-with="Please wait...">
+    <%end%>
+    (얼추 250 이상)<br/>
+    </h3>
+</form>
+<form action='/dkdkdlwkd/dlqslek_emd'>
+    <h3>
+    읍면동 저장 현황 : 
+    <%=@emd_cnt %><br/>
+    <% if @emd_cnt < 10 %>
+        <input type='submit' value="Let's 저장" data-disable-with="Please wait...">
+    <%end%>
+     (얼추 3505 이상)<br/>
+    </h3>
+    <h1> 만약 저장된 db 수가 이상한 경우 db를 다시 저장하세요. </h1>
+</form>
+
+<a href='/db/destroypage'>[DB 삭제 페이지로 가기]</a><br>
+<a href='/rails/db'>[DB 보러 가기]</a>

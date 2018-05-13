@@ -59,7 +59,7 @@ module Juso
                     end
                 end
             end
-ap sh
+# ap sh
             return sh
         end
 
@@ -78,32 +78,4 @@ ap sh
 
     end
 
-    class Func_step
-        def find_el
-            return n_step=1, result="시/도지사"
-        end
-
-        def find_sido
-
-            return n_step=1, result="서울"
-        end
-
-        def find_gusigun(sido)
-
-            return n_step=1, result="#{sido} 금천구"
-        end
-
-        def find_emd(gusigun)
-
-            return n_step=1, result="#{gusigun} 독산동"
-        end
-
-        def go_home
-            return n_step=90, result=""
-        end
-
-        def back_func
-            return n_step=-1, result=""
-        end
-    end
 end
