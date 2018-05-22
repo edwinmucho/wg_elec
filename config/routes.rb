@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   get 'homepage/index' => 'homepage#index'
-
+  get 'homepage/result' => 'homepage#result'
+  get 'kakao/homepage' => 'kakao#homepage'
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   get '/keyboard' => 'kakao#keyboard'
 

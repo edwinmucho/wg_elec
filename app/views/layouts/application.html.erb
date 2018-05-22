@@ -16,11 +16,11 @@
     <% if flash[:notice] %>
         <div class="notice"><%= flash[:notice] %></div>
     <% end %>
-    <% if !session[:login] %>
-      <a href = '/db/loginpage'>[로그인]</a>
-    <% else %>
-      <a href = '/db/loginpage'>[로그아웃]</a>
-    <% end %>
+    <!--<% if !session[:login] %>-->
+    <!--  <a href = '/db/loginpage'>[로그인]</a>-->
+    <!--<% else %>-->
+    <!--  <a href = '/db/loginpage'>[로그아웃]</a>-->
+    <!--<% end %>-->
     <%= yield %>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

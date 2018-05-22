@@ -336,7 +336,6 @@ ap @@user
   end
 ####################################################
 
-  
   def findCandidate(user_msg)
     user_key = params[:user_key]
     @sun_code = {
@@ -371,10 +370,9 @@ ap @@user
           tail_num = ["3","4","11"].include?(sgcode) ? "00" : "01"
           midle_num = ["3","11"].include?(sgcode) ? "#{user.sido_code}" : "#{user.emd_code}"
     
-          @fin_url = "http://info.nec.go.kr/main/main_election_precandidate.json?electionId=0020180613&sgTypeCode=#{sgcode}&sggCode=#{sgcode}#{midle_num}#{tail_num}&emdCode=#{user.emd_code}&startIndex=0&endIndex=9"
-          homepage(@fin_url)
-          # @temp_msg = " https://w-election-kimddo.c9users.io/kakao/homepage 입니다. "
-          @temp_msg = " https://w-election-kimddo.c9users.io/kakao/homepage 입니다. "
+          fin_url = "http://info.nec.go.kr/main/main_election_precandidate.json?electionId=0020180613&sgTypeCode=#{sgcode}&sggCode=#{sgcode}#{midle_num}#{tail_num}&emdCode=#{user.emd_code}&startIndex=0&endIndex=9"
+          
+          @temp_msg = " #{fin_url} 입니다. "
           @temp_key = @@key.getBtnKey(@sun_code.keys)  
         end
       end
@@ -397,15 +395,5 @@ ap @@user
   
     return @temp_msg, @temp_key  
   end
-  #######################################Homepage로 JSON 넘기기
-  def homepage(url)
-    ap url
-    f_url= url
-    # url = "http://info.nec.go.kr/main/main_election_precandidate.json?electionId=0020180613&sgTypeCode=3&sggCode=3110000&emdCode=112111&startIndex=0&endIndex=9" 
-    # url = "#{@fin_url}"
-    response = RestClient.get(f_url)
-    @parsed = JSON.parse(response)
-    redirect_to post_url(@parsed), :status => :found
-    return @parsed
-  end
+  
 end

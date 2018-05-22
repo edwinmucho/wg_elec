@@ -44,8 +44,15 @@ ActiveRecord::Schema.define(version: 20180504112428) do
   end
 
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string "chat_room"
+    t.integer "chat_room"
     t.string "user_key"
+    t.string "sido"
+    t.string "sigun"
+    t.string "gu"
+    t.string "emd"
+    t.string "sido_code"
+    t.string "gusigun_code"
+    t.string "emd_code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

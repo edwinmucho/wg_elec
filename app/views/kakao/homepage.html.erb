@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.cards{
+   display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: auto;
+    grid-gap: 1rem;
+}
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    max-width: 300px;
+    margin: auto;
+    text-align: center;
+}
+
+.name {
+    color: grey;
+    font-size: 18px;
+}
+
+.party{
+    color: black;
+    font-size: 20px;
+}
+.button {
+    border: none;
+    padding: 6px;
+    color: white;
+    background-color: black;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    font-size: 18px;
+}
+
+a {
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
+}
+
+button:hover, a:hover {
+    opacity: 0.7;
+}
+</style>
+</head>
+<body>
+
+<% 
+case @parsed["hbjMap"][0]["SG_TYPECODE"]
+when 3
+  @code = "시·도지사선거"
+when 4
+  @code = "구·시·군의 장선거"
+when 5
+  @code = "시·도의회의원선거"
+when 6
+  @code = "구·시·군의회의원선거"
+when 11
+  @code = "교육감선거"
+end%>
+<h2><%=@code%> </h2>
+<div class= "cards">
+<% @parsed["hbjMap"].each do |i|%>
+<% @photo="http://info.nec.go.kr/photo_20180613" + i["IMAGE_FILE"].to_s%>
+<% @name= i["HBJNAME"].to_s%>
+<% @party= i["JDNAME"].to_s%>
+<% @link= "http://info.nec.go.kr/electioninfo/precandidate_detail_info.xhtml?electionId=0020180613&huboId=" + i["HUBOID"].to_s%>
+
+<div class="card">
+  <p><img src="<%=@photo%>" style="width:100%"></p>
+  <p class="party"><%=@party%></p>
+  <p class="name"><%=@name%></p>
+  <a href="<%=@link%>" class="button"><font color = "white">후보 더 알아보기</font></a>
+</div>
+
+<% end%>
+</body>
+</html> 
+
+
+
+
+
+
+
+
+
+
+

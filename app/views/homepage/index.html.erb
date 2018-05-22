@@ -1,6 +1,5 @@
-<% @parsed.each do |i|%>
-    <%=i%>
-<%end%>
+
+
     <!--@code = @parsed["hbjMap"][0]["SG_TYPECODE"]-->
     <!--@name = @parsed["hbjMap"][0]["HBJNAME"]-->
     <!--@photo = "http://info.nec.go.kr/photo_20180613" + @parsed["hbjMap"][0]["IMAGE_FILE"]     -->
@@ -17,7 +16,7 @@
   color: white;
   height: 100%;
   width: 100%;
-  background: url(<%=@photo%>) center / contain;
+  background: center / contain;
   background-repeat: no-repeat;
   
   /*background-size: auto;*/
@@ -30,8 +29,14 @@
 }
 </style>
 
+<% @parsed["hbjMap"].each do |i|%>
+<% @photo="http://info.nec.go.kr/photo_20180613" + i["IMAGE_FILE"].to_s%>
+<% @name= i["HBJNAME"].to_s%>
+<% @party= i["JDNAME"].to_s%>
+<% @link= "http://info.nec.go.kr/electioninfo/precandidate_detail_info.xhtml?electionId=0020180613&huboId=" + i["huboId"].to_s%>
+
 <div class="demo-card-wide mdl-card mdl-shadow--2dp">
-  <div class="mdl-card__title">
+  <div class="mdl-card__title" style="background-image:url(<%=@photo%>)">
     <h2 class="mdl-card__title-text"></h2>
   </div>
   <div class="mdl-card__supporting-text">
@@ -46,6 +51,10 @@
     </a>
   </div>
 </div>
+</ul>
+<% end%>
+
+
 
 
 
