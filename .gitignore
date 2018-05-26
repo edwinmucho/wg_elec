@@ -29,3 +29,5 @@ config/secrets.yml
 public/assets/**
 public/assets/*
 
+/app/controllers/new_version_kakao_controller.rb
+/app/controllers/old_version_kakao_controller.rb
