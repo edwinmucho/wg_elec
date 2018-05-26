@@ -43,3 +43,44 @@
 1. DB 저장 하는 부분을 웹으로 이동.
  - access code로 접근!
  - db 추가 / 삭제 가능하게 수정.
+
+
+## <2018.05.18> Update
+
+1. 카카오 컨트롤러 Refactoring
+ - new_version_kakao_controller.rb (참고)
+   - message 부분 정리 및 내용 분리
+   - init_state 추가 : 각 키보드 및 메세지/유저 정보의의 초기화를 담당. (인자: text, user_key)
+   - setAddress 추가 : 유저의 주소를 입력 받아 DB에 저장 하는 함수. (인자: user_msg)
+   - next_func_step 추가 : 다음 기능 스텝을 관리 하는 함수. (인자: text, menu, fstep)
+   - findCandidate 추가 : 선거 별로 후보 정보 불러오게 하는 함수. (인자: user_msg)
+   - checkAddress 추가 : 유저의 현재 저장된 주소 정보 확인하는 함수. (인자: user_key)
+   - check_user 추가 : 현재 유저에 대한 정보가 있는지 확인하고 없으면 만들어 주는 함수. (인자: user_key)
+   - chat_room 함수 수정. (채팅방 정보 업데이트 부분 수정.)
+   - friend_add 함수 수정. (유저 정보 초기화 추가)
+ - User database 에 컬럼 추가.
+   - 도/시/구/동 에 대한 명칭과 코드를 저장하는 부분 추가
+   - chat_room 을 기존 string에서 integer로 변경.
+
+2. 후보자를 웹에 표시하기 위한 내용 추가
+ - HomepageController
+ - view/homepage/*
+ - Bootstrap 및 CSS 적용
+
+## <2018.05.22> Update
+
+1. User Database에 컬럼 추가
+  - url : Json 정보를 가진 주소
+2. 후보자를 웹에 뿌리기 위한 내용 추가
+  - get 방식으로 유저 ID를 보내는 방식으로 controller 안에 묶인 데이터를 보내는걸로 대처함.
+3. 정형화된 주소를 bitly api 를 이용하여 간략화 내용 추가. [BITLY 사이트](https://bitly.com/)
+  - gem 'bitly' [GEM 참고 사이트](https://github.com/philnash/bitly) / [사용법 참고 사이트](https://richonrails.com/articles/shortening-urls-with-bit-ly)
+  - urlshortener 함수 추가.
+  - bitly 는 월 10000건의 주소변환이 무료. (중복 주소는 카운트 안됨. / 우리 주소는 유저명수와 동일. 즉 만명만 넘지 않으면 괜찮음.)
+
+
+## <2018.05.26> Update
+
+1. Json Url 오류 수정.
+2. 사전 투표소 찾기 메뉴 추가
+3. 후보자 페이지 수정.

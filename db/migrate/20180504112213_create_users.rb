@@ -13,6 +13,7 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.string :gusigun_code
       t.string :emd_code
 
+      t.string :url
       t.timestamps
     end
   end

@@ -2,7 +2,7 @@ require 'msgmaker'
 require 'juso'
 
 class KakaoController < ApplicationController
-  attr_reader :fin_url
+  
   @@key = Msgmaker::Keyboard.new
   @@msg = Msgmaker::Message.new
 
@@ -143,10 +143,9 @@ ap @@user
   def init_state(text="", user_key)
     main_menu = [MENU_STEP_FIND_CANDI,MENU_STEP_ADD_ADDRESS, MENU_STEP_CHECK_ADDRESS]
     
-    default_msg = text == "" ? DEFAULT_MESSAGE : text + "\n" + DEFAULT_MESSAGE  # "메뉴를 골라 주세요."
+    default_msg = DEFAULT_MESSAGE   # "메뉴를 골라 주세요."
     default_key = @@key.getBtnKey(main_menu)
-# ap ">>>>>>>>"    
-# ap user_key
+    
     if user_key != "init_status"
       @@user[user_key] = 
       {
@@ -154,7 +153,7 @@ ap @@user
         :fstep => @fstep = [FUNC_STEP_INIT]
       }
     end
-
+    
     return default_msg, default_key
   end
 
@@ -288,7 +287,8 @@ ap @@user
           user.save
           address = user.sido.to_s + " " + user.sigun.to_s + " " + user.gu.to_s + " " + user.emd.to_s
           
-          @temp_msg, @temp_key = init_state("#{address} 저장완료.",user_key)
+          @temp_msg, @temp_key = init_state(user_key)
+          @temp_msg = "#{address} 저장완료.\n" + @temp_msg
         end
       elsif fstep == FUNC_STEP_ADDRESS_CONFIRM
 
@@ -301,7 +301,8 @@ ap @@user
           user.save
           
           address = user.sido.to_s + " " + user.sigun.to_s + " " + user.gu.to_s + " " + user.emd.to_s
-          @temp_msg, @temp_key = init_state("#{address} 저장완료.",user_key)
+          @temp_msg, @temp_key = init_state(user_key)
+          @temp_msg = "#{address} 저장완료.\n" + @temp_msg
       else 
         # 잘못된 접근
         @temp_msg, @temp_key = init_state(user_key)
@@ -335,6 +336,7 @@ ap @@user
   end
 ####################################################
 
+  
   def findCandidate(user_msg)
     user_key = params[:user_key]
     @sun_code = {
@@ -351,14 +353,9 @@ ap @@user
       @temp_msg, @temp_key = init_state(user_key)
     else
       if fstep == FUNC_STEP_INIT
-
-        if User.where(user_key: user_key).pluck(:sido_code)[0].length < 4
-          @temp_msg, @temp_key = init_state("등록된 주소가 없습니다.",user_key)
-        else
-          @temp_msg = "어떤 후보자를 찾고 있습니까?"  
-          @temp_key = @@key.getBtnKey(@sun_code.keys)
-          @@user[user_key][:fstep].push(FUNC_STEP_CHOICE_SGCODE)
-        end
+        @temp_msg = "어떤 후보자를 찾고 있습니까?"  
+        @temp_key = @@key.getBtnKey(@sun_code.keys)
+        @@user[user_key][:fstep].push(FUNC_STEP_CHOICE_SGCODE)
         
       elsif fstep == FUNC_STEP_CHOICE_SGCODE
         sgcode = @sun_code[user_msg]
@@ -368,21 +365,16 @@ ap @@user
 # ap sgcode
 # ap user
         if user.sido_code.nil? or user.gusigun_code.nil? or user.emd_code.nil?
-          @temp_msg, @temp_key = init_state("주소를 다시 한번 확인해 주세요.",user_key)
+          @temp_msg, @temp_key = init_state(user_key)
+          @temp_msg = "주소를 다시 한번 확인해 주세요. \n" + @temp_msg
         else
           tail_num = ["3","4","11"].include?(sgcode) ? "00" : "01"
           midle_num = ["3","11"].include?(sgcode) ? "#{user.sido_code}" : "#{user.emd_code}"
-          
-          @url = "http://info.nec.go.kr/main/main_election_precandidate.json?electionId=0020180613&sgTypeCode=#{sgcode}&sggCode=#{sgcode}#{midle_num}#{tail_num}&emdCode=#{user.emd_code}&startIndex=0&endIndex=9"
-       
-          user = User.where(user_key: user_key)[0]
-          user.url = @url
-          user.save
-          
-          # homepage(fin_url)
-          @m_url = "https://w-election-kimddo.c9users.io/hello/index/#{user.id}"
-          @m_url = urlshortener(@m_url)
-          @temp_msg = "#{@m_url} 입니다. "
+    
+          @fin_url = "http://info.nec.go.kr/main/main_election_precandidate.json?electionId=0020180613&sgTypeCode=#{sgcode}&sggCode=#{sgcode}#{midle_num}#{tail_num}&emdCode=#{user.emd_code}&startIndex=0&endIndex=9"
+          homepage(@fin_url)
+          # @temp_msg = " https://w-election-kimddo.c9users.io/kakao/homepage 입니다. "
+          @temp_msg = " https://w-election-kimddo.c9users.io/kakao/homepage 입니다. "
           @temp_key = @@key.getBtnKey(@sun_code.keys)  
         end
       end
@@ -394,8 +386,7 @@ ap @@user
 ####################################################
   def checkAddress(user_key)
     user = User.where(user_key: user_key)[0]
-# ap "check addr >>>"    
-# ap user_key
+    
     @temp_msg, @temp_key = init_state(user_key)
     
     if user.sido.nil?
@@ -406,14 +397,15 @@ ap @@user
   
     return @temp_msg, @temp_key  
   end
-
-  def urlshortener(url)
-    require "bitly"
-    
-    bitly = Bitly::V3::Client.new(ENV["BITLY_ID"], ENV["BITLY_API_KEY"])
-    
-    res = bitly.shorten(url)
-    
-    return res.short_url
+  #######################################Homepage로 JSON 넘기기
+  def homepage(url)
+    ap url
+    f_url= url
+    # url = "http://info.nec.go.kr/main/main_election_precandidate.json?electionId=0020180613&sgTypeCode=3&sggCode=3110000&emdCode=112111&startIndex=0&endIndex=9" 
+    # url = "#{@fin_url}"
+    response = RestClient.get(f_url)
+    @parsed = JSON.parse(response)
+    redirect_to post_url(@parsed), :status => :found
+    return @parsed
   end
 end

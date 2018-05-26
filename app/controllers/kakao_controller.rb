@@ -1,8 +1,9 @@
 require 'msgmaker'
 require 'juso'
+require 'rest-client'
 
 class KakaoController < ApplicationController
-  
+  attr_reader :fin_url
   @@key = Msgmaker::Keyboard.new
   @@msg = Msgmaker::Message.new
 
@@ -10,7 +11,7 @@ class KakaoController < ApplicationController
   MENU_STEP_FIND_CANDI    = "후보자 찾기"
   MENU_STEP_ADD_ADDRESS   = "내 주소등록/수정"
   MENU_STEP_CHECK_ADDRESS = "내 주소 확인"
-
+  MENU_STEP_FIND_PLACE = "사전투표소찾기"
 
   
   DEFAULT_MESSAGE = "메뉴를 골라 주세요."
@@ -80,6 +81,8 @@ ap @@user
         @next_msg, @next_keyboard = findCandidate(user_msg)
       when MENU_STEP_CHECK_ADDRESS
         @next_msg, @next_keyboard = checkAddress(user_key)
+      when MENU_STEP_FIND_PLACE
+        @next_msg, @next_keyboard = findPlace(user_key)
       else
         
       end
@@ -101,7 +104,14 @@ ap @@user
   end
 
   def friend_add
-    User.create(user_key: params[:user_key], chat_room: 0)
+    res = User.where(user_key: params[:user_key])[0]
+# ap "Check user >>>>>>>"      
+# ap res      
+    if res.nil?
+      User.create(user_key: user_key, chat_room: 0)
+    end
+    
+    # User.create(user_key: params[:user_key], chat_room: 0)
    
     @@user[user_key] = 
     {
@@ -141,11 +151,12 @@ ap @@user
 
   # private
   def init_state(text="", user_key)
-    main_menu = [MENU_STEP_FIND_CANDI,MENU_STEP_ADD_ADDRESS, MENU_STEP_CHECK_ADDRESS]
+    main_menu = [MENU_STEP_FIND_CANDI,MENU_STEP_ADD_ADDRESS, MENU_STEP_CHECK_ADDRESS, MENU_STEP_FIND_PLACE]
     
-    default_msg = DEFAULT_MESSAGE   # "메뉴를 골라 주세요."
+    default_msg = text == "" ? DEFAULT_MESSAGE : text + "\n\n" + DEFAULT_MESSAGE  # "메뉴를 골라 주세요."
     default_key = @@key.getBtnKey(main_menu)
-    
+# ap ">>>>>>>>"    
+# ap user_key
     if user_key != "init_status"
       @@user[user_key] = 
       {
@@ -153,7 +164,7 @@ ap @@user
         :fstep => @fstep = [FUNC_STEP_INIT]
       }
     end
-    
+
     return default_msg, default_key
   end
 
@@ -287,8 +298,7 @@ ap @@user
           user.save
           address = user.sido.to_s + " " + user.sigun.to_s + " " + user.gu.to_s + " " + user.emd.to_s
           
-          @temp_msg, @temp_key = init_state(user_key)
-          @temp_msg = "#{address} 저장완료.\n" + @temp_msg
+          @temp_msg, @temp_key = init_state("#{address} 저장완료.",user_key)
         end
       elsif fstep == FUNC_STEP_ADDRESS_CONFIRM
 
@@ -301,8 +311,7 @@ ap @@user
           user.save
           
           address = user.sido.to_s + " " + user.sigun.to_s + " " + user.gu.to_s + " " + user.emd.to_s
-          @temp_msg, @temp_key = init_state(user_key)
-          @temp_msg = "#{address} 저장완료.\n" + @temp_msg
+          @temp_msg, @temp_key = init_state("#{address} 저장완료.",user_key)
       else 
         # 잘못된 접근
         @temp_msg, @temp_key = init_state(user_key)
@@ -336,7 +345,6 @@ ap @@user
   end
 ####################################################
 
-  
   def findCandidate(user_msg)
     user_key = params[:user_key]
     @sun_code = {
@@ -352,29 +360,51 @@ ap @@user
     if user_msg == "홈"
       @temp_msg, @temp_key = init_state(user_key)
     else
+        user = User.where(user_key: user_key)[0]
+  
       if fstep == FUNC_STEP_INIT
-        @temp_msg = "어떤 후보자를 찾고 있습니까?"  
-        @temp_key = @@key.getBtnKey(@sun_code.keys)
-        @@user[user_key][:fstep].push(FUNC_STEP_CHOICE_SGCODE)
+
+        if user.sido.nil? or user.sido_code.length < 4
+        @temp_msg, @temp_key = init_state("등록된 주소가 없습니다.",user_key)
+        else
+          @temp_msg = "어떤 후보자를 찾고 있습니까?"  
+          @temp_key = @@key.getBtnKey(@sun_code.keys)
+          @@user[user_key][:fstep].push(FUNC_STEP_CHOICE_SGCODE)
+        end
         
       elsif fstep == FUNC_STEP_CHOICE_SGCODE
         sgcode = @sun_code[user_msg]
-        user = User.where(user_key: user_key)[0]
-  
-# ap "후보자 찾기 >>>>>>"  
-# ap sgcode
-# ap user
+ap "후보자 찾기 >>>>>>"  
+ap sgcode
+ap user
         if user.sido_code.nil? or user.gusigun_code.nil? or user.emd_code.nil?
-          @temp_msg, @temp_key = init_state(user_key)
-          @temp_msg = "주소를 다시 한번 확인해 주세요. \n" + @temp_msg
+          @temp_msg, @temp_key = init_state("주소를 다시 한번 확인해 주세요.",user_key)
         else
-          tail_num = ["3","4","11"].include?(sgcode) ? "00" : "01"
-          midle_num = ["3","11"].include?(sgcode) ? "#{user.sido_code}" : "#{user.emd_code}"
-    
-          @fin_url = "http://info.nec.go.kr/main/main_election_precandidate.json?electionId=0020180613&sgTypeCode=#{sgcode}&sggCode=#{sgcode}#{midle_num}#{tail_num}&emdCode=#{user.emd_code}&startIndex=0&endIndex=9"
-          homepage(@fin_url)
-          # @temp_msg = " https://w-election-kimddo.c9users.io/kakao/homepage 입니다. "
-          @temp_msg = " https://w-election-kimddo.c9users.io/kakao/homepage 입니다. "
+          # tail_num = ["3","4","11"].include?(sgcode) ? "00" : "01"
+          # midle_num = ["3","11"].include?(sgcode) ? "#{user.sido_code}" : "#{user.gusigun_code}" #( ["4","5","6"].include?(sgcode) ? "#{user.gusigun_code}" : "#{user.emd_code}" )
+          
+          sggurl = "http://info.nec.go.kr/main/main_election_jd_sgg.json?electionId=0020180613&sgTypeCode=#{sgcode}&emdCode=#{user.emd_code}"
+          
+          sggresponse = RestClient.get(sggurl)
+          sggparsed = JSON.parse(sggresponse)
+          # ap "-------------"
+          # ap sggurl
+          # ap sggparsed
+          # ap sggparsed["SggMap"][0]["CODE"]
+       
+          sggcode = sggparsed["SggMap"][0]["CODE"]
+          
+          # @url = "http://info.nec.go.kr/main/main_election_candidate.json?electionId=0020180613&sgTypeCode=#{sgcode}&sggCode=#{sgcode}#{midle_num}#{tail_num}&emdCode=#{user.emd_code}&startIndex=0&endIndex=9"
+          @url = "http://info.nec.go.kr/main/main_election_candidate.json?electionId=0020180613&sgTypeCode=#{sgcode}&sggCode=#{sggcode}&emdCode=#{user.emd_code}&startIndex=0&endIndex=9"
+          
+          user = User.where(user_key: user_key)[0]
+          user.url = @url
+          user.save
+          
+          # homepage(fin_url)
+          @m_url = "https://w-election-kimddo.c9users.io/homepage/result/#{user.id}"
+          @m_url = urlshortener(@m_url)
+          @temp_msg = "#{@m_url} 입니다. "
           @temp_key = @@key.getBtnKey(@sun_code.keys)  
         end
       end
@@ -382,11 +412,38 @@ ap @@user
     
     return @temp_msg, @temp_key
   end
+####################################################
+## 투표소 
 
+  def findPlace(user_key)
+    
+    user_key = params[:user_key]
+    user = User.find_by(user_key: user_key)
+    emdcode = user.emd_code
+    ap emdcode
+    
+    # url = "http://info.nec.go.kr/main/main_load_sub.xhtml?tabMenuId=PrePoll&electionId=0020180613&emdCode=#{emdcode}&pgmPath=/main/main_prevote.jsp"
+    placeurl = "http://info.nec.go.kr/m/main/main_load_sub.xhtml?electionId=0020180613&pgmPath=/main/main_prevote.jsp&tabMenuId=PrePoll&emdCode=#{emdcode}&"
+    
+    placedata = RestClient.get(placeurl)
+    placejson = JSON.parse(placedata)
+    pollplace = placejson["jsonResult"]["body"]["model"]["tupyosoList"][0]["TPSJUSO"]
+    ap pollplace.gsub(" ", "")
+    
+    placemap = "https://map.naver.com/?query="+pollplace.gsub(" ", "")
+    ap placemap
+    
+    @temp_msg, @temp_key = init_state(placemap,user_key)
+
+  
+    return @temp_msg, @temp_key  
+  end
+  
 ####################################################
   def checkAddress(user_key)
     user = User.where(user_key: user_key)[0]
-    
+# ap "check addr >>>"    
+# ap user_key
     @temp_msg, @temp_key = init_state(user_key)
     
     if user.sido.nil?
@@ -397,15 +454,14 @@ ap @@user
   
     return @temp_msg, @temp_key  
   end
-  #######################################Homepage로 JSON 넘기기
-  def homepage(url)
-    ap url
-    f_url= url
-    # url = "http://info.nec.go.kr/main/main_election_precandidate.json?electionId=0020180613&sgTypeCode=3&sggCode=3110000&emdCode=112111&startIndex=0&endIndex=9" 
-    # url = "#{@fin_url}"
-    response = RestClient.get(f_url)
-    @parsed = JSON.parse(response)
-    redirect_to post_url(@parsed), :status => :found
-    return @parsed
+
+  def urlshortener(url)
+    require "bitly"
+    
+    bitly = Bitly::V3::Client.new(ENV["BITLY_ID"], ENV["BITLY_API_KEY"])
+    
+    res = bitly.shorten(url)
+    
+    return res.short_url
   end
 end

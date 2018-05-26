@@ -53,6 +53,7 @@ ActiveRecord::Schema.define(version: 20180504112428) do
     t.string "sido_code"
     t.string "gusigun_code"
     t.string "emd_code"
+    t.string "url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

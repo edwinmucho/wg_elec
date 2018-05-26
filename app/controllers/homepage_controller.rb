@@ -29,10 +29,10 @@ class HomepageController < ApplicationController
     # require 'httparty'
     require 'rest-client'
 
-    
+    user = User.where(id: params[:user_id])[0]
     # url = @fin_url
-    url = "http://info.nec.go.kr/main/main_election_precandidate.json?electionId=0020180613&sgTypeCode=3&sggCode=3110000&emdCode=112111&startIndex=0&endIndex=9" 
-    response = RestClient.get(url)
+    # url = "http://info.nec.go.kr/main/main_election_precandidate.json?electionId=0020180613&sgTypeCode=3&sggCode=3110000&emdCode=112111&startIndex=0&endIndex=9" 
+    response = RestClient.get(user.url)
     @parsed = JSON.parse(response)
   end
 

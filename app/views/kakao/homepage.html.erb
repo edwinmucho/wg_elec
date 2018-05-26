@@ -2,12 +2,13 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
 .cards{
    display: grid;
     grid-template-columns: repeat(2, 1fr);
+    /*grid-template-columns: 8ch auto;*/
     grid-auto-rows: auto;
-    grid-gap: 1rem;
 }
 .card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -45,6 +46,10 @@ a {
 button:hover, a:hover {
     opacity: 0.7;
 }
+
+h2 {
+    text-align: center;
+}
 </style>
 </head>
 <body>
@@ -62,7 +67,7 @@ when 6
 when 11
   @code = "교육감선거"
 end%>
-<h2><%=@code%> </h2>
+<h2><%=@code%>입니다</h2>
 <div class= "cards">
 <% @parsed["hbjMap"].each do |i|%>
 <% @photo="http://info.nec.go.kr/photo_20180613" + i["IMAGE_FILE"].to_s%>

@@ -7,7 +7,6 @@
    display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-auto-rows: auto;
-    grid-gap: 1rem;
 }
 .card {
  
@@ -28,6 +27,9 @@ img {
 
 .container {
     padding: 2px 16px;
+}
+h2 {
+    text-align: center;
 }
 </style>
 </head>
@@ -52,6 +54,10 @@ end%>
 <% @name= i["HBJNAME"].to_s%>
 <% @party= i["JDNAME"].to_s%>
 <% @link= "http://info.nec.go.kr/electioninfo/precandidate_detail_info.xhtml?electionId=0020180613&huboId=" + i["huboId"].to_s%>
+  <!--<div class="img"><img src="<%=@photo%>" height="280" width="250" ></div>-->
+  <!--<p class="party"><%=@party%></p> -->
+  <!-- <p class="name"><%=@name%></p> -->
+  <!--<a href="<%=@link%>" class="button"><font color = "white">후보 더 알아보기</font></a>-->
 
 <div class="card" >
      <figure class="card__thumbnail">
