@@ -12,9 +12,7 @@ gem 'httparty'
 gem 'nokogiri'
 gem 'figaro'
 gem 'therubyracer'
-
 gem 'awesome_print'
-gem 'rest-client'
 gem 'bitly'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

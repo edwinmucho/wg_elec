@@ -4,28 +4,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <style>
-.cards{
+.container{
    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 2fr);
     grid-auto-rows: auto;
-    grid-gap: 1rem;
+    
 }
 .card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-    max-height: 600px;
-    max-width: 300px;
-    margin: auto;
+    max-width:100%;
+    max-height:100%;
+    /*margin: auto;*/
     text-align: center;
+}
+.card-img-top{
+    max-width:100%;
+    max-height:266px;
+    object-fit:contain;
+    vertical-align: middle;
 }
 .card-header{
     color: black;
     font-size: 20px;
+    border-bottom: 1px solid black;
+    font-weight: bold;
 }
 .card-text{
     color: black;
     font-size: 20px;
+    border-bottom: 1px solid black;
+    
 }
-
 a {
     text-decoration: none;
     font-size: 18px;
@@ -37,6 +46,8 @@ button:hover, a:hover {
 }
 h2 {
     text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 .button {
@@ -71,24 +82,23 @@ end%>
 <h2><%=@code%> </h2>
 <div class="container">
 <% @parsed["hbjMap"].each do |i|%>
-
 <% @photo="http://info.nec.go.kr/photo_20180613" + i["IMAGE_FILE"].to_s%>
 <% @name= i["HBJNAME"].to_s%>
 <% @party= i["JDNAME"].to_s%>
 <% @link= "http://info.nec.go.kr/electioninfo/precandidate_detail_info.xhtml?electionId=0020180613&huboId=" + i["HUBOID"].to_s%>
 
-<div class="card">
-  <img class="card-img-top" src="<%=@photo%>" alt="Card image cap">
-      <div class="card-body">
-         <div class="card-header"><%=@party%></div>
-        <div class="card-text"><%=@name%></div>
-      <a href="<%=@link%>" class="button"><font color = "white">후보 더 알아보기</font></a>
-      </div>
-</div>
-</div>
-</div>
-<% end%>
+    <div class="card">
+      <img class="card-img-top" src="<%=@photo%>" alt="Card image cap">
+          <div class="card-body">
+             <div class="card-text"><%=@party%></div>
+            <div class="card-header"><%=@name%></div>
+          <a href="<%=@link%>" class="button"><font color = "white">후보 더 알아보기</font></a>
+          </div>
+    </div>
 
+
+<% end%>
+</div>
 </body>
 </html> 
 
