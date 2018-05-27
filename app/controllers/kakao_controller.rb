@@ -13,7 +13,6 @@ class KakaoController < ApplicationController
   MENU_STEP_CHECK_ADDRESS = "내 주소 확인"
   MENU_STEP_FIND_PLACE = "사전투표소찾기"
 
-  
   DEFAULT_MESSAGE = "메뉴를 골라 주세요."
 
   # 펑션 종류
@@ -64,9 +63,13 @@ class KakaoController < ApplicationController
     
     # 유저별 세션 추가하는 부분. 없는 경우에만 동작. 
     check_user(user_key)
-# ap "User stat >>>>"
-# ap user_key
-# ap @@user[user_key]
+    
+    if @next_keyboard[:buttons].include? user_msg and (@@user[user_key][:fstep][-1] > FUNC_STEP_INIT)
+      init_state(user_key)
+    end
+ap "User stat >>>>"
+ap user_key
+ap @@user[user_key]
 
     # menu step 변경 하는 부분.
     if @@user[user_key][:mstep] == "main"

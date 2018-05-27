@@ -97,4 +97,4 @@
 
 1. test 시 test가 db에 등록되는 부분 삭제.
 2. 친구 차단시 db 및 user hash에서 삭제하는 부분 추가.
-3. awesome print 부분 주석처리.
+3. init_state의 main menu를 클래스 변수로 수정.
