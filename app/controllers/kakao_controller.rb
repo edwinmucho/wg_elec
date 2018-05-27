@@ -402,8 +402,10 @@ ap @@user
           user.save
           
           # homepage(fin_url)
+
           @m_url = "https://w-election-kimddo.c9users.io/homepage/result/#{user.id}"
           # @m_url = "http://52.15.121.230/homepage/result/#{user.id}" # for deploy
+
           @m_url = urlshortener(@m_url)
           @temp_msg = "#{@m_url} 입니다. "
           @temp_key = @@key.getBtnKey(@sun_code.keys)  
