@@ -24,6 +24,8 @@ class KakaoController < ApplicationController
   FUNC_STEP_ADDRESS_GU       = 2
   FUNC_STEP_ADDRESS_EMD      = 3
   FUNC_STEP_ADDRESS_CONFIRM  = 4
+  
+  FUNC_STEP_RETRY            = -1
 
   # 후보자 찾기 스텝
   FUNC_STEP_CHOICE_SGCODE    = 1
@@ -177,7 +179,8 @@ ap @@user
                 "주소지에 해당하는 시 또는 군을 입력하세요.\n 예) 전주시, 단양군, 춘천...\n[홈 또는 이전 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey, # FUNC_STEP_ADDRESS_SIGUN
                 "구를 입력하세요.\n [홈 또는 이전 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey,                                                   # FUNC_STEP_ADDRESS_GU
                 "읍면동을 입력하세요.\n [홈 또는 이전 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey,                                               # FUNC_STEP_ADDRESS_EMD
-                "버튼에서 골라주세요." => "Button",   
+                "버튼에서 골라주세요." => "Button",
+                "다시 시도해 주세요." => "RETRY",
     }
     
     fstep = @@user[user_key][:fstep][-1]
@@ -193,10 +196,10 @@ ap @@user
 
     if user_msg == "이전"
         @@user[user_key][:fstep].pop # 현재 단계 저장된 STEP을 제거
-ap "before >>>>>>>>>>"
-ap @@user[user_key][:fstep]
-ap fstep
-        @temp_msg, @temp_key = nextfuncstep(@addr_menu, @@user[user_key][:fstep][-1])
+# ap "before >>>>>>>>>>"
+# ap @@user[user_key][:fstep]
+# ap fstep
+        @temp_msg, @temp_key = nextfuncstep(@addr_menu, FUNC_STEP_RETRY)
     elsif user_msg == "홈"
         @temp_msg, @temp_key = init_state(user_key)
     else
@@ -217,7 +220,7 @@ ap fstep
 # ap res
           if res.nil? or user_msg.length < 2
             add_message = "#{user_msg} 는 찾을 수 없습니다.\n" 
-            @temp_msg, @temp_key = nextfuncstep(add_message, @addr_menu, FUNC_STEP_ADDRESS_SIGUN)
+            @temp_msg, @temp_key = nextfuncstep(add_message, @addr_menu, FUNC_STEP_RETRY)
           else
             user = User.find_by(user_key: user_key)
 
@@ -245,6 +248,7 @@ ap fstep
 
           user.sido = Sido.where(wiwid: res.wiwid).pluck(:wiwname)[0]
           user.sido_code = res.wiwid
+          user.sigun = nil
           user.save
           address = user.sido.to_s
           @temp_msg ,@temp_key = nextfuncstep(address, @addr_menu, FUNC_STEP_ADDRESS_GU)
@@ -258,7 +262,7 @@ ap fstep
 
         if res.nil? or user_msg.length < 2
           add_message = "#{user_msg} 는 찾을 수 없습니다.\n" 
-          @temp_msg, @temp_key = nextfuncstep(add_message, @addr_menu, FUNC_STEP_ADDRESS_GU)
+          @temp_msg, @temp_key = nextfuncstep(add_message, @addr_menu, FUNC_STEP_RETRY)
         else
           user = User.find_by(user_key: user_key)
           user.gu = res.townname
@@ -282,7 +286,7 @@ ap fstep
 # ap res        
         if res.size == 0 or user_msg.length < 2
           add_message = "#{user_msg} 은 찾을 수 없습니다.\n" 
-          @temp_msg, @temp_key = nextfuncstep(add_message, @addr_menu, FUNC_STEP_ADDRESS_EMD)
+          @temp_msg, @temp_key = nextfuncstep(add_message, @addr_menu, FUNC_STEP_RETRY)
         elsif res.size > 1
           btn = Array.new
           res.each{|v| btn.push(v[1])}
@@ -334,12 +338,15 @@ ap fstep
 # ap text
 # ap fstep
 # ap menu.keys[fstep]
-
-    user_key = params[:user_key]
-    msg = text == "" ? menu.keys[fstep] : text.to_s + "\n" + menu.keys[fstep].to_s # 전달 받은 TEXT 가 있는 경우 추가
+    user_key = params[:user_key] 
+    indx = fstep == FUNC_STEP_RETRY ? @@user[user_key][:fstep][-1] : fstep
+      
+    msg = text == "" ? menu.keys[indx] : text.to_s + "\n" + menu.keys[indx].to_s # 전달 받은 TEXT 가 있는 경우 추가
     keytype = menu[msg]
     
-    @@user[user_key][:fstep].push(fstep)
+    if fstep != FUNC_STEP_RETRY
+      @@user[user_key][:fstep].push(fstep)
+    end
     
     return msg, keytype
   end
@@ -356,7 +363,7 @@ ap fstep
                  "홈"=> "90"
                 }
     fstep = @@user[user_key][:fstep][-1]
-    
+
     if user_msg == "홈"
       @temp_msg, @temp_key = init_state(user_key)
     else
