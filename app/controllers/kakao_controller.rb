@@ -9,7 +9,7 @@ class KakaoController < ApplicationController
 
   # 메뉴 종류
   MENU_STEP_FIND_CANDI    = "후보자 찾기"
-  MENU_STEP_ADD_ADDRESS   = "내 주소등록/수정"
+  MENU_STEP_ADD_ADDRESS   = "내 주소등ㅜ록/수정"
   MENU_STEP_CHECK_ADDRESS = "내 주소 확인"
   MENU_STEP_FIND_PLACE = "사전투표소찾기"
 
@@ -360,12 +360,12 @@ ap @@user
     if user_msg == "홈"
       @temp_msg, @temp_key = init_state(user_key)
     else
-        user = User.where(user_key: user_key)[0]
+      user = User.where(user_key: user_key)[0]
   
       if fstep == FUNC_STEP_INIT
 
         if user.sido.nil? or user.sido_code.length < 4
-        @temp_msg, @temp_key = init_state("등록된 주소가 없습니다.",user_key)
+          @temp_msg, @temp_key = init_state("등록된 주소가 없습니다.",user_key)
         else
           @temp_msg = "어떤 후보자를 찾고 있습니까?"  
           @temp_key = @@key.getBtnKey(@sun_code.keys)
@@ -374,9 +374,9 @@ ap @@user
         
       elsif fstep == FUNC_STEP_CHOICE_SGCODE
         sgcode = @sun_code[user_msg]
-ap "후보자 찾기 >>>>>>"  
-ap sgcode
-ap user
+# ap "후보자 찾기 >>>>>>"  
+# ap sgcode
+# ap user
         if user.sido_code.nil? or user.gusigun_code.nil? or user.emd_code.nil?
           @temp_msg, @temp_key = init_state("주소를 다시 한번 확인해 주세요.",user_key)
         else
@@ -403,6 +403,7 @@ ap user
           
           # homepage(fin_url)
           @m_url = "https://w-election-kimddo.c9users.io/homepage/result/#{user.id}"
+          # @m_url = "http://52.15.121.230/homepage/result/#{user.id}" # for deploy
           @m_url = urlshortener(@m_url)
           @temp_msg = "#{@m_url} 입니다. "
           @temp_key = @@key.getBtnKey(@sun_code.keys)  
@@ -419,22 +420,25 @@ ap user
     
     user_key = params[:user_key]
     user = User.find_by(user_key: user_key)
-    emdcode = user.emd_code
-    ap emdcode
-    
-    # url = "http://info.nec.go.kr/main/main_load_sub.xhtml?tabMenuId=PrePoll&electionId=0020180613&emdCode=#{emdcode}&pgmPath=/main/main_prevote.jsp"
-    placeurl = "http://info.nec.go.kr/m/main/main_load_sub.xhtml?electionId=0020180613&pgmPath=/main/main_prevote.jsp&tabMenuId=PrePoll&emdCode=#{emdcode}&"
-    
-    placedata = RestClient.get(placeurl)
-    placejson = JSON.parse(placedata)
-    pollplace = placejson["jsonResult"]["body"]["model"]["tupyosoList"][0]["TPSJUSO"]
-    ap pollplace.gsub(" ", "")
-    
-    placemap = "https://map.naver.com/?query="+pollplace.gsub(" ", "")
-    ap placemap
-    
-    @temp_msg, @temp_key = init_state(placemap,user_key)
-
+    if user.sido.nil? or user.sido_code.length < 4
+      @temp_msg, @temp_key = init_state("등록된 주소가 없습니다.",user_key)
+    else
+      emdcode = user.emd_code
+      # ap emdcode
+      
+      # url = "http://info.nec.go.kr/main/main_load_sub.xhtml?tabMenuId=PrePoll&electionId=0020180613&emdCode=#{emdcode}&pgmPath=/main/main_prevote.jsp"
+      placeurl = "http://info.nec.go.kr/m/main/main_load_sub.xhtml?electionId=0020180613&pgmPath=/main/main_prevote.jsp&tabMenuId=PrePoll&emdCode=#{emdcode}&"
+      
+      placedata = RestClient.get(placeurl)
+      placejson = JSON.parse(placedata)
+      pollplace = placejson["jsonResult"]["body"]["model"]["tupyosoList"][0]["TPSJUSO"]
+      ap pollplace.gsub(" ", "")
+      
+      placemap = "https://map.naver.com/?query="+pollplace.gsub(" ", "")
+      ap placemap
+      
+      @temp_msg, @temp_key = init_state(placemap,user_key)
+    end
   
     return @temp_msg, @temp_key  
   end

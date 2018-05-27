@@ -25,13 +25,14 @@
 }
 .card-header{
     color: black;
-    font-size: 20px;
+    font-size: 15px;
     border-bottom: 1px solid black;
     font-weight: bold;
 }
 .card-text{
     color: black;
-    font-size: 20px;
+    font-size: 15px;
+    font-weight: bold;
     border-bottom: 1px solid black;
     
 }
@@ -54,6 +55,7 @@ h2 {
     display: block;
     background-color: black;
     padding: 10px 20px;
+    font-size: 15px;
     color: white;
     text-decoration: none;
     text-align: center;
@@ -89,11 +91,11 @@ end%>
 
     <div class="card">
       <img class="card-img-top" src="<%=@photo%>" alt="Card image cap">
-          <div class="card-body">
+          <!--<div class="card-body">-->
              <div class="card-text"><%=@party%></div>
             <div class="card-header"><%=@name%></div>
-          <a href="<%=@link%>" class="button"><font color = "white">후보 더 알아보기</font></a>
-          </div>
+          <a href="<%=@link%>" class="button">후보 더 알아보기</a>
+          <!--</div>-->
     </div>
 
 
