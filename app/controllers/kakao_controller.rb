@@ -9,7 +9,7 @@ class KakaoController < ApplicationController
 
   # 메뉴 종류
   MENU_STEP_FIND_CANDI    = "후보자 찾기"
-  MENU_STEP_ADD_ADDRESS   = "내 주소등ㅜ록/수정"
+  MENU_STEP_ADD_ADDRESS   = "내 주소등록/수정"
   MENU_STEP_CHECK_ADDRESS = "내 주소 확인"
   MENU_STEP_FIND_PLACE = "사전투표소찾기"
 
@@ -193,9 +193,9 @@ ap @@user
 
     if user_msg == "이전"
         @@user[user_key][:fstep].pop # 현재 단계 저장된 STEP을 제거
-# ap "before >>>>>>>>>>"
-# ap @@user[user_key][:fstep]
-# ap fstep
+ap "before >>>>>>>>>>"
+ap @@user[user_key][:fstep]
+ap fstep
         @temp_msg, @temp_key = nextfuncstep(@addr_menu, @@user[user_key][:fstep][-1])
     elsif user_msg == "홈"
         @temp_msg, @temp_key = init_state(user_key)
@@ -210,10 +210,11 @@ ap @@user
       elsif fstep == FUNC_STEP_ADDRESS_SIGUN
         
         res = Sido.where("wiwname LIKE ?", "%#{user_msg[0,2]}%")[0]
-
-        if res.nil?  or res.wiwid == "5100" or user_msg.length < 2 # 비어 있으면 광역시가 아님. 세종시는 제외! (세종시는 구가 없음.)
+# ap "지역 추가 >>>>>>"
+# ap res.wiwid.to_i > 3100 if not res.nil?
+        if res.nil?  or res.wiwid == "5100" or res.wiwid.to_i > 3100 or user_msg.length < 2 # 비어 있으면 광역시가 아님. 세종시는 제외! (세종시는 구가 없음.)
           res = Gusigun.where("townname LIKE ?", "%#{user_msg[0,2]}%")[0]
-
+# ap res
           if res.nil? or user_msg.length < 2
             add_message = "#{user_msg} 는 찾을 수 없습니다.\n" 
             @temp_msg, @temp_key = nextfuncstep(add_message, @addr_menu, FUNC_STEP_ADDRESS_SIGUN)
@@ -237,6 +238,7 @@ ap @@user
             end
 
           end
+          
         else # 광역시 인 경우 이리루
           user = User.find_by(user_key: user_key)
 
@@ -252,10 +254,7 @@ ap @@user
         user = User.find_by(user_key: user_key)
         gu = user_msg.gsub(/\s/,"")
         res = Gusigun.where("wiwid = ? AND townname LIKE ?", "#{user.sido_code}", "%#{gu}%")[0]
-# ap "구 찾기 >>>>>>>"        
-# ap user.sido_code
-# ap gu
-# ap res
+
         if res.nil? or user_msg.length < 2
           add_message = "#{user_msg} 는 찾을 수 없습니다.\n" 
           @temp_msg, @temp_key = nextfuncstep(add_message, @addr_menu, FUNC_STEP_ADDRESS_GU)
@@ -361,11 +360,14 @@ ap @@user
       @temp_msg, @temp_key = init_state(user_key)
     else
       user = User.where(user_key: user_key)[0]
-  
+      
       if fstep == FUNC_STEP_INIT
 
-        if user.sido.nil? or user.sido_code.length < 4
-          @temp_msg, @temp_key = init_state("등록된 주소가 없습니다.",user_key)
+        corr_addr = corr_address(user)
+        
+        if user.sido.nil? or user.sido_code.length < 4 or !corr_addr
+          text = (user.sido.nil? or user.sido == "") ? "주소를 등록해 주세요." : "#{user.sido} #{user.gu} #{user.sigun} #{user.emd}\n등록된 주소를 확인해 주세요."
+          @temp_msg, @temp_key = init_state(text,user_key)
         else
           @temp_msg = "어떤 후보자를 찾고 있습니까?"  
           @temp_key = @@key.getBtnKey(@sun_code.keys)
@@ -469,5 +471,17 @@ ap @@user
     res = bitly.shorten(url)
     
     return res.short_url
+  end
+##################################################
+  def corr_address(user)
+
+# ap "correct address >>>>>>>"
+# ap user.sido_code[0,2]
+# ap user.gusigun_code[0,4]
+# ap user.emd_code[0,4]
+
+    return  ((user.sido_code[0,2] == user.gusigun_code[0,2]) and 
+            (user.gusigun_code[0,4] == user.emd_code[0,4])) ?  true : false
+
   end
 end
