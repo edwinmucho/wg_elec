@@ -52,6 +52,53 @@ module Msgmaker
 
         end
 
+        def getLinkBtn(label, url)
+            json = {
+                "message_button":{
+                    "label": label,
+                    "url": url
+                }
+            }
+        end
+        
+        def getMessageBtn(text,label,url)
+            json = {
+                "text": text,
+                "message_button":{
+                    "label": label,
+                    "url": url
+                }
+            }
+        end
+        
+        def getPictureBtn(photo_url,label,url)
+            json = {
+                "photo":{
+                    "url": photo_url,
+                    "width": 640,
+                    "height": 480
+                },
+                "message_button":{
+                    "label": label,
+                    "url": url
+                }
+            }
+        end
+        
+        def getMsgPicBtn(text,photo_url,label,url)
+            json = {
+                "text": text,
+                "photo":{
+                    "url": photo_url,
+                    "width": 640,
+                    "height": 480
+                },
+                "message_button":{
+                    "label": label,
+                    "url": url
+                }
+            }
+        end
     end
 
 

@@ -12,7 +12,7 @@ class KakaoController < ApplicationController
   MENU_STEP_ADD_ADDRESS   = "내 주소등록/수정"
   MENU_STEP_CHECK_ADDRESS = "내 주소 확인"
   MENU_STEP_FIND_PLACE = "사전투표소찾기"
-
+  
   DEFAULT_MESSAGE = "메뉴를 골라 주세요."
 
   # 펑션 종류
@@ -84,7 +84,7 @@ ap @@user[user_key]
       when MENU_STEP_ADD_ADDRESS
         @next_msg, @next_keyboard = setAddress(user_msg)
       when MENU_STEP_FIND_CANDI
-        @next_msg, @next_keyboard = findCandidate(user_msg)
+        @next_msg, @next_keyboard, @ismsgBtn = findCandidate(user_msg)
       when MENU_STEP_CHECK_ADDRESS
         @next_msg, @next_keyboard = checkAddress(user_key)
       when MENU_STEP_FIND_PLACE
@@ -100,12 +100,21 @@ ap @@user[user_key]
     
     msg = @next_msg
     basic_keyboard = @next_keyboard
-    
-    result = {
-      message: @@msg.getMessage(msg.to_s),
-      keyboard: basic_keyboard
-    }
 
+    if @ismsgBtn
+      # img_url = "http://mblogthumb3.phinf.naver.net/20131210_238/jjssoo1225_138665292681451K5y_GIF/%B1%CD%BF%A9%BF%EE%BE%C6%C0%CC%C4%DC%2C%BF%F2%C1%F7%C0%CC%B4%C2%C4%B3%B8%AF%C5%CD%2C%B1%CD%BF%A9%BF%EE%C4%B3%B8%AF%C5%CD%2C%BF%F2%C1%F7%C0%CC%B4%C2%C0%CC%B8%F0%C6%BC%C4%DC%2C%C0%CC%B9%CC%C1%F6%B8%F0%C0%BD%A8%E7_%284%29.gif?type=w2"
+      # img_url = "/app/assets/images/logo_resize.jpg"
+      result = {
+        message: @@msg.getMessageBtn("후보자 명단 입니다.",@temp_msg[0], @temp_msg[1]),
+        keyboard: basic_keyboard
+      }
+    else
+      result = {
+        message: @@msg.getMessage(msg.to_s),
+        keyboard: basic_keyboard
+      }
+    end
+    
     render json: result
   end
 
@@ -383,6 +392,7 @@ ap @@user[user_key]
                  "교육감선거"=> "11",
                  "홈"=> "90"
                 }
+    @ismsgBtn = false
     fstep = @@user[user_key][:fstep][-1]
 
     if user_msg == "홈"
@@ -435,14 +445,20 @@ ap @@user[user_key]
           @m_url = "https://w-election-kimddo.c9users.io/homepage/result/#{user.id}"
           # @m_url = "http://52.15.121.230/homepage/result/#{user.id}" # for deploy
 
-          @m_url = urlshortener(@m_url)
-          @temp_msg = "#{@m_url} 입니다. "
+          # @m_url = urlshortener(@m_url)
+          # @temp_msg = "#{@m_url} 입니다. "
+          temp = Array.new
+          temp.push(user_msg)
+          temp.push(@m_url)
+          
+          @temp_msg = temp
+          @ismsgBtn = true
           @temp_key = @@key.getBtnKey(@sun_code.keys)  
         end
       end
     end
     
-    return @temp_msg, @temp_key
+    return @temp_msg, @temp_key, @ismsgBtn
   end
 ####################################################
 ## 투표소 

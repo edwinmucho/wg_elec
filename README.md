@@ -97,4 +97,8 @@
 
 1. test 시 test가 db에 등록되는 부분 삭제.
 2. 친구 차단시 db 및 user hash에서 삭제하는 부분 추가.
-3. init_state의 main menu를 클래스 변수로 수정.
+3. [버그 수정]
+  - 후보자 찾기에 접속 > 10분 이상 해당 메뉴 방치 > 서버에서는 처음부터 시작 (but user step은 유지되고 있음.)
+  - 각 step이 꼬여 에러가 무한정 발생.
+  - message 에서 mstep 이 main 이 아니고 마지막 fstep이 초기 값이 아닌 경우. 오랜시간 방치로 판정하여 init 하는 부분 추가.
+4. Bitly 대신 MessageButton으로 변경. 
