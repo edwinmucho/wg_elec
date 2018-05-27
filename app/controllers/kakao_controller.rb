@@ -64,8 +64,9 @@ class KakaoController < ApplicationController
     
     # 유저별 세션 추가하는 부분. 없는 경우에만 동작. 
     check_user(user_key)
-ap "User stat >>>>"
-ap @@user
+# ap "User stat >>>>"
+# ap user_key
+# ap @@user[user_key]
 
     # menu step 변경 하는 부분.
     if @@user[user_key][:mstep] == "main"
@@ -106,27 +107,44 @@ ap @@user
   end
 
   def friend_add
-    res = User.where(user_key: params[:user_key])[0]
-# ap "Check user >>>>>>>"      
-# ap res      
-    if res.nil?
-      User.create(user_key: user_key, chat_room: 0)
+    user_key = params[:user_key]
+    if user_key != "test"
+      res = User.where(user_key: user_key)[0]
+  # ap "Check user >>>>>>>"      
+  # ap user_key
+  # ap res      
+      if res.nil?
+        User.create(user_key: user_key, chat_room: 0)
+      end
+      
+      # User.create(user_key: params[:user_key], chat_room: 0)
+     
+      @@user[user_key] = 
+      {
+        :mstep => @mstep = "main",
+        :fstep => @fstep = [FUNC_STEP_INIT]
+      }
     end
+    render nothing: true
+  end
+
+  def friend_del
+
+    user_key = params[:user_key]
+    user = User.where(user_key: user_key)[0]
+    user.destroy
     
-    # User.create(user_key: params[:user_key], chat_room: 0)
-   
-    @@user[user_key] = 
-    {
-      :mstep => @mstep = "main",
-      :fstep => @fstep = [FUNC_STEP_INIT]
-    }
+    @@user.delete(user_key)
+
     render nothing: true
   end
 
   def chat_room
     user = User.find_by(user_key: params[:user_key])
-    user.chat_room += 1
-    user.save
+    if not user.nil?
+      user.chat_room += 1
+      user.save
+    end
     render nothing: true
   end
 
@@ -370,10 +388,8 @@ ap @@user
       user = User.where(user_key: user_key)[0]
       
       if fstep == FUNC_STEP_INIT
-
-        corr_addr = corr_address(user)
         
-        if user.sido.nil? or user.sido_code.length < 4 or !corr_addr
+        if user.sido.nil? or user.sido_code.length < 4 or !corr_address(user)
           text = (user.sido.nil? or user.sido == "") ? "주소를 등록해 주세요." : "#{user.sido} #{user.gu} #{user.sigun} #{user.emd}\n등록된 주소를 확인해 주세요."
           @temp_msg, @temp_key = init_state(text,user_key)
         else
@@ -394,7 +410,7 @@ ap @@user
           # midle_num = ["3","11"].include?(sgcode) ? "#{user.sido_code}" : "#{user.gusigun_code}" #( ["4","5","6"].include?(sgcode) ? "#{user.gusigun_code}" : "#{user.emd_code}" )
           
           sggurl = "http://info.nec.go.kr/main/main_election_jd_sgg.json?electionId=0020180613&sgTypeCode=#{sgcode}&emdCode=#{user.emd_code}"
-          
+# ap sggurl          
           sggresponse = RestClient.get(sggurl)
           sggparsed = JSON.parse(sggresponse)
           # ap "-------------"
@@ -444,10 +460,10 @@ ap @@user
       placedata = RestClient.get(placeurl)
       placejson = JSON.parse(placedata)
       pollplace = placejson["jsonResult"]["body"]["model"]["tupyosoList"][0]["TPSJUSO"]
-      ap pollplace.gsub(" ", "")
+# ap pollplace.gsub(" ", "")
       
       placemap = "https://map.naver.com/?query="+pollplace.gsub(" ", "")
-      ap placemap
+# ap placemap
       
       @temp_msg, @temp_key = init_state(placemap,user_key)
     end

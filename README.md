@@ -90,3 +90,11 @@
 
 1. delete hello controller(사용안하는 컨트롤러)
 2. 사전 투표소 찾기 오류 수정.
+3. 이전 step 부분 수정.
+
+
+## <2018.05.28> Update
+
+1. test 시 test가 db에 등록되는 부분 삭제.
+2. 친구 차단시 db 및 user hash에서 삭제하는 부분 추가.
+3. awesome print 부분 주석처리.
