@@ -231,6 +231,7 @@ ap fstep
               @temp_msg ,@temp_key = nextfuncstep(address, @addr_menu, FUNC_STEP_ADDRESS_GU)
             else
               user.sigun = res.townname
+              user.gu = nil
               user.gusigun_code = res.towncode
               user.save
               address = user.sido.to_s + " " + user.sigun.to_s
