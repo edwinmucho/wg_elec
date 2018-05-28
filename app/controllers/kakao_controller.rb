@@ -205,11 +205,11 @@ ap @@user[user_key]
   def setAddress(user_msg)
     user_key = params[:user_key]
     @addr_menu = {
-                "주소지에 해당하는 시 또는 군을 입력하세요.\n 예) 서울시, 의성군...\n [홈 또는 이전 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey, # FUNC_STEP_INIT
-                "주소지에 해당하는 시 또는 군을 입력하세요.\n 예) 전주시, 단양군, 춘천...\n[홈 또는 이전 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey, # FUNC_STEP_ADDRESS_SIGUN
-                "구를 입력하세요.\n [홈 또는 이전 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey,                                                   # FUNC_STEP_ADDRESS_GU
-                "읍면동을 입력하세요.\n [홈 또는 이전 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey,                                               # FUNC_STEP_ADDRESS_EMD
-                "버튼에서 골라주세요." => "Button",
+                "주소지에 해당하는 [시] 또는 [군]을 입력하세요.\n 예) 서울, 부산광역시, 의성군, ...\n ['홈' 또는 '이전' 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey, # FUNC_STEP_INIT
+                "주소지에 해당하는 [시] 또는 [군]을 입력하세요.\n 예) 광주광역시, 단양군, 춘천, ...\n['홈' 또는 '이전' 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey, # FUNC_STEP_ADDRESS_SIGUN
+                "[구]를 입력하세요.\n 예) 종로구, 강남, ...\n ['홈' 또는 '이전' 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey,                                                   # FUNC_STEP_ADDRESS_GU
+                "주소지의 [읍]/[면]/[동]을 입력하세요.\n 예) 역삼1동, 봉화읍, 월곶, \n ['홈' 또는 '이전' 을 치면 해당 메뉴로 갈 수 있습니다.]" => @@key.getTextKey,                                               # FUNC_STEP_ADDRESS_EMD
+                "'가까운 주민센터'를 선택해주세요." => "Button",
                 "다시 시도해 주세요." => "RETRY",
     }
     
@@ -332,7 +332,7 @@ ap @@user[user_key]
           user.save
           address = user.sido.to_s + " " + user.sigun.to_s + " " + user.gu.to_s + " " + user.emd.to_s
           
-          @temp_msg, @temp_key = init_state("#{address} 저장완료.",user_key)
+          @temp_msg, @temp_key = init_state("#{address}\n 저장완료.",user_key)
         end
       elsif fstep == FUNC_STEP_ADDRESS_CONFIRM
 
@@ -345,7 +345,7 @@ ap @@user[user_key]
           user.save
           
           address = user.sido.to_s + " " + user.sigun.to_s + " " + user.gu.to_s + " " + user.emd.to_s
-          @temp_msg, @temp_key = init_state("#{address} 저장완료.",user_key)
+          @temp_msg, @temp_key = init_state("#{address}\n 저장완료.",user_key)
       else 
         # 잘못된 접근
         @temp_msg, @temp_key = init_state(user_key)
@@ -385,17 +385,17 @@ ap @@user[user_key]
   def findCandidate(user_msg)
     user_key = params[:user_key]
     @sun_code = {
-                 "시,도지사선거"=> "3",
-                 "구,시,군의 장선거"=> "4",
-                 "시,도의회의원선거"=> "5",
-                 "구,시,군의회의원선거"=> "6",
-                 "교육감선거"=> "11",
-                 "홈"=> "90"
+                 "시,도지사선거 후보"=> "3",
+                 "구,시,군의 장선거 후보"=> "4",
+                 "시,도의회의원선거 후보"=> "5",
+                 "구,시,군의회의원선거 후보"=> "6",
+                 "교육감선거 후보"=> "11",
+                 "[ 처음으로 가기 ]"=> "90"
                 }
     @ismsgBtn = false
     fstep = @@user[user_key][:fstep][-1]
 
-    if user_msg == "홈"
+    if user_msg == "[ 처음으로 가기 ]"
       @temp_msg, @temp_key = init_state(user_key)
     else
       user = User.where(user_key: user_key)[0]

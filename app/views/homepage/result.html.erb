@@ -17,22 +17,33 @@
     /*margin: auto;*/
     text-align: center;
 }
-.card-img-top{
+.card-img-box{
     max-width:100%;
-    max-height:266px;
-    object-fit:contain;
+    height: 250px;
+}
+.card-img-top{
+    display: inline;
+    max-width:100%;
+    height:250px;
+    object-fit:fill;
     vertical-align: middle;
 }
 .card-header{
+    /*display: inline;*/
     color: black;
     font-size: 15px;
-    border-bottom: 1px solid black;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
     font-weight: bold;
+    
+    /*padding-bottom: 0px;*/
 }
 .card-text{
     color: black;
     font-size: 15px;
     font-weight: bold;
+    /*border-top: 1px solid black;*/
     border-bottom: 1px solid black;
     
 }
@@ -90,7 +101,9 @@ end%>
 <% @link= "http://info.nec.go.kr/electioninfo/precandidate_detail_info.xhtml?electionId=0020180613&huboId=" + i["HUBOID"].to_s%>
 
     <div class="card">
+        <div class="card-img-box">
       <img class="card-img-top" src="<%=@photo%>" alt="Card image cap">
+          </div>
           <!--<div class="card-body">-->
              <div class="card-text"><%=@party%></div>
             <div class="card-header"><%=@name%></div>

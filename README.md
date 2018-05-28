@@ -102,3 +102,5 @@
   - 각 step이 꼬여 에러가 무한정 발생.
   - message 에서 mstep 이 main 이 아니고 마지막 fstep이 초기 값이 아닌 경우. 오랜시간 방치로 판정하여 init 하는 부분 추가.
 4. Bitly 대신 MessageButton으로 변경. 
+5. 교육감 css 수정.
+6. 일부 안내문구 수정.
