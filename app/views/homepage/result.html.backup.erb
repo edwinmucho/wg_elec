@@ -2,35 +2,78 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <style>
-.cards{
+.container{
    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 2fr);
     grid-auto-rows: auto;
+    
 }
 .card {
- 
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    transition: 0.3s;
-    width: 98%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    max-width:100%;
+    max-height:100%;
+    /*margin: auto;*/
+    text-align: center;
+}
+.card-img-box{
+    max-width:100%;
+    height: 250px;
+}
+.card-img-top{
+    display: inline;
+    max-width:100%;
+    height:250px;
+    object-fit:fill;
+    vertical-align: middle;
+}
+.card-header{
+    /*display: inline;*/
+    color: black;
+    font-size: 15px;
     height: 100%;
-    border-radius: 5px;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: bold;
+    
+    /*padding-bottom: 0px;*/
+}
+.card-text{
+    color: black;
+    font-size: 15px;
+    font-weight: bold;
+    /*border-top: 1px solid black;*/
+    border-bottom: 1px solid black;
+    
+}
+a {
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
 }
 
-.card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-
-img {
-    border-radius: 5px 5px 0 0;
-}
-
-.container {
-    padding: 2px 16px;
+button:hover, a:hover {
+    opacity: 0.7;
 }
 h2 {
     text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
+
+.button {
+    display: block;
+    background-color: black;
+    padding: 10px 20px;
+    font-size: 15px;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    transition: .3s ease-out;
+}
+
+
 </style>
 </head>
 <body>
@@ -47,39 +90,32 @@ when 6
 when 11
   @code = "교육감선거"
 end%>
+
+
 <h2><%=@code%> </h2>
-<div class= "cards">
+<div class="container">
 <% @parsed["hbjMap"].each do |i|%>
 <% @photo="http://info.nec.go.kr/photo_20180613" + i["IMAGE_FILE"].to_s%>
 <% @name= i["HBJNAME"].to_s%>
 <% @party= i["JDNAME"].to_s%>
-<% @link= "http://info.nec.go.kr/electioninfo/precandidate_detail_info.xhtml?electionId=0020180613&huboId=" + i["huboId"].to_s%>
-  <!--<div class="img"><img src="<%=@photo%>" height="280" width="250" ></div>-->
-  <!--<p class="party"><%=@party%></p> -->
-  <!-- <p class="name"><%=@name%></p> -->
-  <!--<a href="<%=@link%>" class="button"><font color = "white">후보 더 알아보기</font></a>-->
+<% @link= "http://info.nec.go.kr/electioninfo/precandidate_detail_info.xhtml?electionId=0020180613&huboId=" + i["HUBOID"].to_s%>
 
-<div class="card" >
-     <figure class="card__thumbnail">
-            <img src="<%=@photo%>" style="width:100%">
-        </figure>
-  <div class="container">
-    <h4><b><%=@party%></b></h4> 
- <div class="mdl-card__actions mdl-card--border">
-    <a href = <%=@link%> class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-      후보 자세히 알아보기
-    </a>
-  </div>
-  </div>
-  </div>
-</div>
+    <div class="card">
+        <div class="card-img-box">
+      <img class="card-img-top" src="<%=@photo%>" alt="Card image cap">
+          </div>
+          <!--<div class="card-body">-->
+             <div class="card-text"><%=@party%></div>
+            <div class="card-header"><%=@name%></div>
+          <a href="<%=@link%>" class="button">후보 더 알아보기</a>
+          <!--</div>-->
+    </div>
+
 
 <% end%>
 </div>
 </body>
 </html> 
-
-
 
 
 
