@@ -96,9 +96,13 @@ end%>
 <div class="container">
 <% @parsed["hbjMap"].each do |i|%>
 <% @photo="http://info.nec.go.kr/photo_20180613" + i["IMAGE_FILE"].to_s%>
-<% @name= i["HBJNAME"].to_s%>
 <% @party= i["JDNAME"].to_s%>
-<% @link= "http://info.nec.go.kr/electioninfo/precandidate_detail_info.xhtml?electionId=0020180613&huboId=" + i["HUBOID"].to_s%>
+<% 
+    fname=i["HBJNAME"].to_s 
+    sname=fname[0, fname.index('(')]
+    @name=sname
+%>
+<% @link="https://search.daum.net/search?w=tot&DA=YZR&t__nil_searchbox=btn&sug=&sugo=&q="+i["JDNAME"].to_s+"+"+sname%>
 
     <div class="card">
         <div class="card-img-box">

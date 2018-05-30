@@ -12,7 +12,7 @@ class KakaoController < ApplicationController
   MENU_STEP_ADD_ADDRESS   = "내 주소등록/수정"
   MENU_STEP_CHECK_ADDRESS = "내 주소 확인"
   MENU_STEP_FIND_PLACE = "사전투표소찾기"
-  
+  MENU_STEP_ADDRESS_NEWS = "우리지역 선거 뉴스"
   DEFAULT_MESSAGE = "메뉴를 골라 주세요."
 
   # 펑션 종류
@@ -84,11 +84,13 @@ ap @@user[user_key]
       when MENU_STEP_ADD_ADDRESS
         @next_msg, @next_keyboard = setAddress(user_msg)
       when MENU_STEP_FIND_CANDI
-        @next_msg, @next_keyboard, @ismsgBtn = findCandidate(user_msg)
+        @next_msg, @next_keyboard, ismsgBtn = findCandidate(user_msg)
       when MENU_STEP_CHECK_ADDRESS
         @next_msg, @next_keyboard = checkAddress(user_key)
       when MENU_STEP_FIND_PLACE
-        @next_msg, @next_keyboard = findPlace(user_key)
+        @next_msg, @next_keyboard, ismsgBtn = findPlace(user_key)
+      when MENU_STEP_ADDRESS_NEWS
+        @next_msg, @next_keyboard, ismsgBtn = election_new(user_key)
       else
         
       end
@@ -101,11 +103,11 @@ ap @@user[user_key]
     msg = @next_msg
     basic_keyboard = @next_keyboard
 
-    if @ismsgBtn
+    if ismsgBtn
       # img_url = "http://mblogthumb3.phinf.naver.net/20131210_238/jjssoo1225_138665292681451K5y_GIF/%B1%CD%BF%A9%BF%EE%BE%C6%C0%CC%C4%DC%2C%BF%F2%C1%F7%C0%CC%B4%C2%C4%B3%B8%AF%C5%CD%2C%B1%CD%BF%A9%BF%EE%C4%B3%B8%AF%C5%CD%2C%BF%F2%C1%F7%C0%CC%B4%C2%C0%CC%B8%F0%C6%BC%C4%DC%2C%C0%CC%B9%CC%C1%F6%B8%F0%C0%BD%A8%E7_%284%29.gif?type=w2"
       # img_url = "/app/assets/images/logo_resize.jpg"
       result = {
-        message: @@msg.getMessageBtn("후보자 명단 입니다.",@temp_msg[0], @temp_msg[1]),
+        message: @@msg.getMessageBtn(@next_msg[0],@next_msg[1], @next_msg[2]),
         keyboard: basic_keyboard
       }
     else
@@ -183,7 +185,8 @@ ap @@user[user_key]
 
   # private
   def init_state(text="", user_key)
-    main_menu = [MENU_STEP_FIND_CANDI,MENU_STEP_ADD_ADDRESS, MENU_STEP_CHECK_ADDRESS, MENU_STEP_FIND_PLACE]
+    main_menu = [MENU_STEP_FIND_CANDI,MENU_STEP_ADD_ADDRESS, MENU_STEP_CHECK_ADDRESS,
+                 MENU_STEP_FIND_PLACE, MENU_STEP_ADDRESS_NEWS]
     
     default_msg = text == "" ? DEFAULT_MESSAGE : text + "\n\n" + DEFAULT_MESSAGE  # "메뉴를 골라 주세요."
     default_key = @@key.getBtnKey(main_menu)
@@ -392,7 +395,8 @@ ap @@user[user_key]
                  "교육감선거 후보"=> "11",
                  "[ 처음으로 가기 ]"=> "90"
                 }
-    @ismsgBtn = false
+    ismsgBtn = false
+    
     fstep = @@user[user_key][:fstep][-1]
 
     if user_msg == "[ 처음으로 가기 ]"
@@ -413,17 +417,16 @@ ap @@user[user_key]
         
       elsif fstep == FUNC_STEP_CHOICE_SGCODE
         sgcode = @sun_code[user_msg]
-# ap "후보자 찾기 >>>>>>"  
-# ap sgcode
-# ap user
+
         if user.sido_code.nil? or user.gusigun_code.nil? or user.emd_code.nil?
           @temp_msg, @temp_key = init_state("주소를 다시 한번 확인해 주세요.",user_key)
+        elsif user.sido_code == "5100" and ["4", "6"].include?(sgcode)
+          @temp_msg = "세종시는 해당 선거를 치루지 않습니다."
+          @temp_key = @@key.getBtnKey(@sun_code.keys)
         else
-          # tail_num = ["3","4","11"].include?(sgcode) ? "00" : "01"
-          # midle_num = ["3","11"].include?(sgcode) ? "#{user.sido_code}" : "#{user.gusigun_code}" #( ["4","5","6"].include?(sgcode) ? "#{user.gusigun_code}" : "#{user.emd_code}" )
-          
+
           sggurl = "http://info.nec.go.kr/main/main_election_jd_sgg.json?electionId=0020180613&sgTypeCode=#{sgcode}&emdCode=#{user.emd_code}"
-# ap sggurl          
+     
           sggresponse = RestClient.get(sggurl)
           sggparsed = JSON.parse(sggresponse)
           # ap "-------------"
@@ -433,41 +436,42 @@ ap @@user[user_key]
        
           sggcode = sggparsed["SggMap"][0]["CODE"]
           
-          # @url = "http://info.nec.go.kr/main/main_election_candidate.json?electionId=0020180613&sgTypeCode=#{sgcode}&sggCode=#{sgcode}#{midle_num}#{tail_num}&emdCode=#{user.emd_code}&startIndex=0&endIndex=9"
-          @url = "http://info.nec.go.kr/main/main_election_candidate.json?electionId=0020180613&sgTypeCode=#{sgcode}&sggCode=#{sggcode}&emdCode=#{user.emd_code}&startIndex=0&endIndex=9"
+          url = "http://info.nec.go.kr/main/main_election_candidate.json?electionId=0020180613&sgTypeCode=#{sgcode}&sggCode=#{sggcode}&emdCode=#{user.emd_code}&startIndex=0&endIndex=25"
           
           user = User.where(user_key: user_key)[0]
-          user.url = @url
+          user.url = url
           user.save
           
-          # homepage(fin_url)
-
-          @m_url = "https://w-election-kimddo.c9users.io/homepage/result/#{user.id}"
-          # @m_url = "http://52.15.121.230/homepage/result/#{user.id}" # for deploy
-
-          # @m_url = urlshortener(@m_url)
-          # @temp_msg = "#{@m_url} 입니다. "
+          root = ENV["ROOT_URL"]
+          
+          m_url = "#{root}/homepage/result/#{user.id}"
+          label = user_msg
+          text = "후보자 명단 입니다."
+          
           temp = Array.new
-          temp.push(user_msg)
-          temp.push(@m_url)
+          temp.push(text)
+          temp.push(label)
+          temp.push(m_url)
           
           @temp_msg = temp
-          @ismsgBtn = true
+          ismsgBtn = true
           @temp_key = @@key.getBtnKey(@sun_code.keys)  
         end
       end
     end
     
-    return @temp_msg, @temp_key, @ismsgBtn
+    return @temp_msg, @temp_key, ismsgBtn
   end
 ####################################################
 ## 투표소 
 
   def findPlace(user_key)
     
+    ismsgBtn = false
     user_key = params[:user_key]
     user = User.find_by(user_key: user_key)
-    if user.sido.nil? or user.sido_code.length < 4
+    
+    if user.emd_code.nil? or user.emd_code.length < 4
       @temp_msg, @temp_key = init_state("등록된 주소가 없습니다.",user_key)
     else
       emdcode = user.emd_code
@@ -482,12 +486,22 @@ ap @@user[user_key]
 # ap pollplace.gsub(" ", "")
       
       placemap = "https://map.naver.com/?query="+pollplace.gsub(" ", "")
-# ap placemap
+
+      text = "사전투표안내\n일시: 6월8일(금)~9일(토)\n시간: 오전6시~오후6시\n"
+      label = "#{user.emd} 사전 투표장은 이곳!"
+      # url = urlshortener(placemap)
+ 
+      @temp_msg, @temp_key = init_state(user_key)
+      temp = Array.new
+      temp.push(text)
+      temp.push(label)
+      temp.push(placemap)
       
-      @temp_msg, @temp_key = init_state(placemap,user_key)
+      @temp_msg = temp
+      ismsgBtn = true
     end
   
-    return @temp_msg, @temp_key  
+    return @temp_msg, @temp_key, ismsgBtn  
   end
   
 ####################################################
@@ -527,4 +541,34 @@ ap @@user[user_key]
             (user.gusigun_code[0,4] == user.emd_code[0,4])) ?  true : false
 
   end
+  
+###################################################
+  def election_new(user_key)
+    news_code = {
+      "서울" => "667363", "부산" => "667388", "대구" => "667405", "인천" => "667414",
+      "광주" => "667425", "대전" => "667431", "울산" => "667437", "세종" => "667443",
+      "경기" => "667444", "강원" => "667476", "충북" => "667495", "충남" => "667507",
+      "전북" => "667523", "전남" => "667538", "경북" => "667561", "경남" => "667585",
+      "제주" => "667604"
+    }
+    
+    sido = User.where(user_key: user_key).pluck(:sido)[0]
+    
+    code = (sido.length == 4) ? "#{sido[0]}#{sido[2]}" : "#{sido[0,2]}"
+
+    @temp_msg, @temp_key = init_state(user_key)
+    news_url = "http://election.daum.net/20180613/news/district/#{news_code[code]}"
+    temp = []
+    text = "#{sido} 지역 뉴스"
+    label = "#{sido} 지역 뉴스"
+    
+    temp.push(text)
+    temp.push(label)
+    temp.push(news_url)
+    
+    @temp_msg = temp  
+    return @temp_msg, @temp_key, isMsgBtn=true
+
+  end
+
 end
