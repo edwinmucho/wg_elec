@@ -404,6 +404,11 @@ ap @@user[user_key]
     else
       user = User.where(user_key: user_key)[0]
       
+      if ["4900", "5100"].include?(user.sido_code)
+        @sun_code.delete("구,시,군의 장선거 후보")
+        @sun_code.delete("구,시,군의회의원선거 후보")
+      end
+
       if fstep == FUNC_STEP_INIT
         
         if user.sido.nil? or user.sido_code.length < 4 or !corr_address(user)
@@ -420,9 +425,6 @@ ap @@user[user_key]
 
         if user.sido_code.nil? or user.gusigun_code.nil? or user.emd_code.nil?
           @temp_msg, @temp_key = init_state("주소를 다시 한번 확인해 주세요.",user_key)
-        elsif user.sido_code == "5100" and ["4", "6"].include?(sgcode)
-          @temp_msg = "세종시는 해당 선거를 치루지 않습니다."
-          @temp_key = @@key.getBtnKey(@sun_code.keys)
         else
 
           sggurl = "http://info.nec.go.kr/main/main_election_jd_sgg.json?electionId=0020180613&sgTypeCode=#{sgcode}&emdCode=#{user.emd_code}"
