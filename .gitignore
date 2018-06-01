@@ -31,4 +31,8 @@ public/assets/*
 
 /app/controllers/new_version_kakao_controller.rb
 /app/controllers/old_version_kakao_controller.rb
-/app/controllers/kakao_controller.1.rb
+/app/controllers/*.1.rb
+
+/*.rb
+/app/controllers/*.backup.rb
+/app/views/homepage/*.1.erb
