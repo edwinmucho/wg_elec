@@ -108,7 +108,7 @@ ap @@user[user_key]
       
       # 에러 발생시 여기로 옴. #에러 로그를 여기서!
       rescue Exception => e
-        err_msg = "#{e.message} ( #{e.backtrace.inspect.scan(/\/[a-z]+\/[a-z_.:0-9]+in /)[0]} )"
+        err_msg = "#{e.message} ( #{e.backtrace.inspect.scan(/\/[a-zA-Z_]+\/[a-zA-Z_.:0-9]+in /)[0]} )"
         bug_list = Buglist.create(err_msg: err_msg, mstep: @@user[user_key][:mstep], fstep: @@user[user_key][:fstep], user_msg: user_msg)
         bug_list.save
         @next_msg, @next_keyboard = init_state("불편을 드려 죄송합니다.\n 다시 시도해 주세요.","init_status")
