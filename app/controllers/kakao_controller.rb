@@ -35,11 +35,9 @@ class KakaoController < ApplicationController
 
 # 챗봇 메인 메뉴! 여기에 추가하면 메뉴가 추가됨.
   @@main_menu = [MENU_STEP_FIND_CANDI, MENU_STEP_ADDRESS,
-               MENU_STEP_FIND_PLACE, MENU_STEP_ADDRESS_NEWS]#, MENU_STEP_CHEERUP]
-
+                 MENU_STEP_FIND_PLACE, MENU_STEP_ADDRESS_NEWS]#, MENU_STEP_CHEERUP]
   # 설명 문장.
   DESC_FOR_ADDRESS_FIRST = "해당 메뉴는 선거구 주소를 확인 및 등록, 수정을 할수 있습니다.\n(선거구 주소는 언제든지\n등록/수정할 수 있습니다.)"
-
 
   # 클래스 변수와 전역 변수.
   @@user = {}
@@ -64,10 +62,10 @@ class KakaoController < ApplicationController
 
     # 기본 메세지와 키 값을 저장하는 부분.
     @next_msg, @next_keyboard = init_state("init_status")
-ap "Default msg/key >>>>>>>>>>"
-ap @next_msg
-ap @next_keyboard
-ap @next_keyboard[:buttons]
+# ap "Default msg/key >>>>>>>>>>"
+# ap @next_msg
+# ap @next_keyboard
+# ap @next_keyboard[:buttons]
     
     
     # 유저별 세션 추가하는 부분. 없는 경우에만 동작. 
@@ -86,29 +84,36 @@ ap @@user[user_key]
     end
 
 
-
-    # 각 메뉴 진입.
-    case @@user[user_key][:mstep]
-    
-      when MENU_STEP_ADDRESS
-        @next_msg, @next_keyboard, ismsgBtn = func_Address(user_msg)
-      when MENU_STEP_FIND_CANDI
-        @next_msg, @next_keyboard, ismsgBtn = findCandidate(user_msg)
-      when MENU_STEP_FIND_PLACE
-        @next_msg, @next_keyboard, ismsgBtn = findPlace(user_key)
-      when MENU_STEP_ADDRESS_NEWS
-        @next_msg, @next_keyboard, ismsgBtn = election_new(user_key)
-      #when MENU_STEP_CHEERUP
-        #@next_msg, @next_keyboard, ismsgBtn = checkCheerup(user_key)  
-      # when MENU_STEP_ADD_ADDRESS
-      #   @next_msg, @next_keyboard = setAddress(user_msg)
-      # when MENU_STEP_CHECK_ADDRESS
-      #   @next_msg, @next_keyboard = checkAddress(user_key)
-      else
-        
+    begin
+      # 각 메뉴 진입.
+      case @@user[user_key][:mstep]
+      
+        when MENU_STEP_ADDRESS
+          @next_msg, @next_keyboard, ismsgBtn = func_Address(user_msg)
+        when MENU_STEP_FIND_CANDI
+          @next_msg, @next_keyboard, ismsgBtn = findCandidate(user_msg)
+        when MENU_STEP_FIND_PLACE
+          @next_msg, @next_keyboard, ismsgBtn = findPlace(user_key)
+        when MENU_STEP_ADDRESS_NEWS
+          @next_msg, @next_keyboard, ismsgBtn = election_new(user_key)
+        when MENU_STEP_CHEERUP
+          @next_msg, @next_keyboard, ismsgBtn = checkCheerup(user_key)  
+        # when MENU_STEP_ADD_ADDRESS
+        #   @next_msg, @next_keyboard = setAddress(user_msg)
+        # when MENU_STEP_CHECK_ADDRESS
+        #   @next_msg, @next_keyboard = checkAddress(user_key)
+        else
+          
       end
-
-
+      
+      # 에러 발생시 여기로 옴. #에러 로그를 여기서!
+      rescue Exception => e
+        err_msg = "#{e.message} ( #{e.backtrace.inspect.scan(/\/[a-z]+\/[a-z_.:0-9]+in /)[0]} )"
+        bug_list = Buglist.create(err_msg: err_msg, mstep: @@user[user_key][:mstep], fstep: @@user[user_key][:fstep], user_msg: user_msg)
+        bug_list.save
+        @next_msg, @next_keyboard = init_state("불편을 드려 죄송합니다.\n 다시 시도해 주세요.","init_status")
+    end
+    
     # ap " result >>>>>>"
     # ap @next_msg
     # ap @next_keyboard
@@ -229,8 +234,8 @@ ap @@user[user_key]
     # 주소 등록 문구 및 키보드 타입.
     @set_addr_menu = {
                 "주소 또는 도로명 주소를 입력해 주세요.\n 예)서울 강남구 역삼1동\n 예)평창 군청길77\n['홈' 또는 '이전'을 치면 메뉴로 갈 수 있습니다.]" => @@key.getTextKey, # FUNC_STEP_INIT
-                "주소 또는 도로명 주소를 입력해 주세요.\n 예)서울 중구 세종대로 110 (O)\n 예)서울 중구 세종대로 (X)\n['홈' 또는 '이전'을 치면 메뉴로 갈 수 있습니다.]" => @@key.getTextKey, # FUNC_STEP_ADDRESS_SIGUN
-                "'가까운 주민센터'를 선택해주세요\n\n!목록에서 없다면 '이전'을 눌러\n주소를 더 자세히 적어주세요.\n" => "Button",
+                "주소 또는 도로명 주소를 입력해 주세요.\n 예)서울 중구 세종대로 110 (O)\n 예)부천시 상동\n['홈' 또는 '이전'을 치면 메뉴로 갈 수 있습니다.]" => @@key.getTextKey, # FUNC_STEP_ADDRESS_SIGUN
+                "*가까운 주민센터*를 선택해주세요\n\n!목록에서 없다면 '이전'을 눌러\n주소를 더 자세히 적어주세요.\n" => "Button",
                 "다시 시도해 주세요." => "STAY",
     }
     
@@ -294,6 +299,7 @@ ap @@user[user_key]
           sigun_code = Gusigun.where("townname LIKE ?","%#{full_addr[:sigun]}%").pluck(:towncode)[0] if not full_addr[:sigun].nil?
           gu_code = Gusigun.where("wiwid = ? AND townname LIKE ?", "#{sido_code}", "%#{full_addr[:gu]}%").pluck(:towncode)[0]
   
+          
           # 광역시/도/시/군/구  저장.
           user.sido = full_addr[:sido]
           user.sigun = (full_addr[:sigun] != full_addr[:sido]) ? full_addr[:sigun] : nil
@@ -302,43 +308,38 @@ ap @@user[user_key]
           user.sido_code = sido_code
           towncode = (full_addr[:gu].nil?)? sigun_code : gu_code
           user.gusigun_code = towncode
-          
-          # emd가 String 으로 전달되는 경우 (검색된 동이 1개인 경우)
-          if full_addr[:emd].class == String
-            info_emd = Emd.where("towncode = ? AND (emdname LIKE ? or findlist LIKE ?)", "#{towncode}", "%#{full_addr[:emd]}%", "%#{full_addr[:emd]}%").pluck(:emdcode, :emdname)
 
-            # info_emd가 한개인 경우 읍면동 저장.
-            if info_emd.size == 1
-              user.emd = info_emd[0][1]
-              user.emd_code = info_emd[0][0]
-              address = user.sido.to_s + " " + user.sigun.to_s + " " + user.gu.to_s + " " + user.emd.to_s
-              address = address.gsub("  ", " ")   
-              @temp_msg, @temp_key = init_state("#{address}\n 선거구 저장완료.",user_key)
-            
-            # info_emd 가 여러개인 경우 해당 동이 행정동에 묶여 있는 경우임.
-            elsif info_emd.size != 0
-              btn = []
-              info_emd.each{|v| btn.push(v[1])}
-              @temp_msg, @temp_key = button_confirm(@set_addr_menu,btn,FUNC_STEP_ADDRESS_CONFIRM)  
-            else
-              add_message = "#{full_addr[:emd]} 은 찾을 수 없습니다.\n보다 정확히 입력해 주세요.\n " 
-              @temp_msg, @temp_key = nextfuncwithmenu(add_message, @set_addr_menu, FUNC_STEP_STAY)
-            end
+          # emd가 String 으로 전달되는 경우 (검색된 동이 1개인 경우)
           
-          # emd 가 Array 인 경우 (동이 다수가 검색되는 경우.)  
+          info_emd = Emd.where("towncode = ? AND (emdname LIKE ? or findlist LIKE ?)", "#{towncode}", "%#{full_addr[:emd]}%", "%#{full_addr[:emd]}%").pluck(:emdcode, :emdname)
+
+          # info_emd가 한개인 경우 읍면동 저장.
+          if info_emd.size == 1
+            user.emd = info_emd[0][1]
+            user.emd_code = info_emd[0][0]
+            address = user.sido.to_s + " " + user.sigun.to_s + " " + user.gu.to_s + " " + user.emd.to_s
+            address = address.gsub("  ", " ")   
+            @temp_msg, @temp_key = init_state("#{address}\n 선거구 저장완료.\n(주소지와 동이 다른 경우는\n 선거구로 묶인 동으로 자동 선택된 것입니다.)",user_key)
+            # user db 저장.
+            user.save
+          # info_emd 가 여러개인 경우 해당 동이 행정동에 묶여 있는 경우임.
+          elsif info_emd.size != 0
+            btn = []
+            info_emd.each{|v| btn.push(v[1])}
+            @temp_msg, @temp_key = button_confirm(@set_addr_menu,btn,FUNC_STEP_ADDRESS_CONFIRM)  
+            # user db 저장.
+            user.save
           else
-            @temp_msg, @temp_key = button_confirm(@set_addr_menu,full_addr[:emd],FUNC_STEP_ADDRESS_CONFIRM)
+            add_message = "#{user_msg} 은 찾을 수 없습니다.\n보다 정확히 입력해 주세요.\n " 
+            @temp_msg, @temp_key = nextfuncwithmenu(add_message, @set_addr_menu, FUNC_STEP_STAY)
           end
-          
-          # user db 저장.
-          user.save
           
         end
       
       # 동이 여러개인 경우 처리하는 부분.
       elsif fstep == FUNC_STEP_ADDRESS_CONFIRM
-
         user = User.find_by(user_key: user_key)
+
         res = Emd.where("emdname = ? AND towncode = ?", user_msg, user.gusigun_code)[0] #Bug_list 0531_01
 
         user.emd_code = res.emdcode
@@ -346,7 +347,7 @@ ap @@user[user_key]
         user.save
         address = user.sido.to_s + " " + user.sigun.to_s + " " + user.gu.to_s + " " + user.emd.to_s
         address = address.gsub("  ", " ")   
-        @temp_msg, @temp_key = init_state("#{address}\n 선거구 저장완료.",user_key)
+        @temp_msg, @temp_key = init_state("#{address}\n 선거구 저장완료.\n(주소지와 동이 다른 경우는\n 선거구로 묶인 동으로 자동 선택된 것입니다.)",user_key)
       
       # 잘못된 접근을 하는 경우.      
       else 
@@ -383,7 +384,26 @@ ap @@user[user_key]
     end
     
     return @msg, @keytype
+
   end
+####################################################
+
+  def nextstepwithmsg(msg, btn, fstep)
+    user_key = params[:user_key]
+    
+    if btn != "" and not btn.nil? and (btn.class == Array)
+      @keytype = @@key.getBtnKey(btn)
+    else
+      @keytype = @@key.getTextKey
+    end
+  
+    if fstep != FUNC_STEP_STAY
+      @@user[user_key][:fstep].push(fstep)
+    end
+  
+    return msg, @keytype
+  end
+
 ####################################################
 
   def nextstepwithmsg(msg, btn, fstep)
@@ -567,13 +587,13 @@ ap @@user[user_key]
 ###################################################
   def checkCheerup(user_key)
     user = User.where(user_key: user_key)[0]  
-    total = Jungdang.where(gsg_code: user.gusigun_code).sum(:cheerup)
+    total = Jdcheer.where(gsg_code: user.gusigun_code).sum(:cheerup)
     ismsgBtn = false
     
     if not (total == 0 or user.nil?)
       name = (user.gu.nil? or user.gu == "") ? user.sigun : user.gu
       text = " - #{name} 정당별 응원 지수 -\n"
-      count_list = Jungdang.where(gsg_code: user.gusigun_code).pluck(:jdname, :cheerup).sort_by{|jdname, cheerup| -cheerup}
+      count_list = Jdcheer.where(gsg_code: user.gusigun_code).pluck(:jdname, :cheerup).sort_by{|jdname, cheerup| -cheerup}
       count_list.each do |jdname, cheerup|
         text += "#{jdname} : #{(cheerup * 100.0 / total).round(1)}% (#{cheerup}홧팅!)\n"
       end
@@ -583,9 +603,12 @@ ap @@user[user_key]
       root = ENV["ROOT_URL"]
       m_url = "#{root}/homepage/cheerup_result"
       # m_url = "http://52.15.121.230/homepage/cheerup_result" # for deploy
+ap text
+ap label
+ap m_url      
+      temp.push(text)
       temp.push(label)
       temp.push(m_url)
-      temp.push(text)
       @temp_msg, @temp_key = init_state(user_key)
       @temp_msg = temp
     else
@@ -624,7 +647,6 @@ ap @@user[user_key]
 
   end
 ##################################################
-
  def button_confirm(menu, btn_list, nstep)
   btn = Array.new
   btn = btn_list
