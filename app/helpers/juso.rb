@@ -81,10 +81,15 @@ module Juso
     class JsFind
         
         def search_addr(keyword)
-
+            diff_except = ["사이동", "일도일동","일도이동", "이도일동","이도이동",
+                           "삼도일동","삼도이동", "삼양일동", "삼양이동", "삼양삼동",
+                           "도련일동", "도련이동", "아라일동", "아라이동", "오라일동",
+                           "오라이동", "오라삼동", "외도일동", "외도이동", "이호일동", 
+                           "이호이동", "도두일동", "도두이동"]
+    
             url = "https://m.search.daum.net/search?w=tot&nil_mtopsearch=btn&DA=YZR&q=#{keyword}"
             uri = URI.encode(url)
-            
+
             doc = Nokogiri::HTML(open(uri),nil,'utf-8')
             
             # 다음에서 출력되는 주소 저장
@@ -107,7 +112,7 @@ module Juso
 # ap "chk_diff >>>"
 # ap chk_diff
 # ap addr[:emd].include?chk_diff
-            if chk_diff.length != 0 and not addr[:emd].include?chk_diff
+            if chk_diff.length != 0 and not addr[:emd].include?chk_diff and not diff_except.include?addr[:emd]
                 addr[:emd] = addr[:emd].gsub(/[동|가]/,chk_diff)
             end
 # ap "addr>>>>"            
@@ -139,8 +144,8 @@ module Juso
 # ap temp                
                 temp.each {|k,v| temp[k] = v.gsub(/\s/, '') if not temp[k].nil? }
             end
-            
-            if emd.length != 0 and temp[:emd].length > 5
+# ap temp            
+            if temp[:emd].nil? or (not emd.nil? and temp[:emd].length > 5 )
                 temp[:emd] = emd
             end
             
@@ -154,9 +159,9 @@ module Juso
             uri = URI.encode(url)
             doc = Nokogiri::HTML(open(uri),nil,'utf-8')
             
-            raw_data1 = doc.css("#placeList > li > a > span:nth-child(2)").to_s
+            raw_data1 = doc.css("#addressList > li > div > a > strong").to_s
             if raw_data1.size == 0
-                raw_data1 = doc.css("#addressList > li > div > a > strong").to_s
+                raw_data1 = doc.css("#placeList > li > a > span:nth-child(2)").to_s
             end
             raw_data2 = doc.css('#placeList > li > a > span.txt_g.txt_g_sub').to_s
             
