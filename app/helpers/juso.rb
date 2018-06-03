@@ -94,10 +94,10 @@ module Juso
 # ap detail_dong
 
             # 출력되는 주소를 도/시/구/동 으로 나누어 주는 부분.
-            addr = split_address(full_address)
-            if addr[:emd].nil? or addr[:emd] == ""
-                addr[:emd] = detail_dong
-            end
+            addr = split_address(full_address, detail_dong)
+            # if addr[:emd].nil? or addr[:emd] == ""
+            # addr[:emd] = detail_dong if not detail_dong == ""
+            # end
 # ap "split addr>>>"
 # ap addr
 # ap "emd >>>"            
@@ -116,7 +116,7 @@ module Juso
     
         end
         
-        def split_address(full_addr)
+        def split_address(full_addr, emd)
             temp = {
                 :sido => nil,
                 :gu => nil,
@@ -138,6 +138,10 @@ module Juso
                 temp.each {|k,v| temp[k] = v[0] if v.class.eql?Array}
 # ap temp                
                 temp.each {|k,v| temp[k] = v.gsub(/\s/, '') if not temp[k].nil? }
+            end
+            
+            if emd.length != 0 and temp[:emd].length > 5
+                temp[:emd] = emd
             end
             
             return temp
