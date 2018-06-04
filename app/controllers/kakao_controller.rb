@@ -109,9 +109,9 @@ ap @@user[user_key]
       # 에러 발생시 여기로 옴. #에러 로그를 여기서!
       rescue Exception => e
         err_msg = "#{e.message} ( #{e.backtrace.inspect.scan(/\/[a-zA-Z_]+\/[a-zA-Z_.:0-9]+in /)[0]} )"
-        bug_list = Buglist.create(err_msg: err_msg, mstep: @@user[user_key][:mstep], fstep: @@user[user_key][:fstep], user_msg: user_msg)
+        bug_list = Buglist.create(err_msg: err_msg, mstep: @@user[user_key][:mstep], fstep: @@user[user_key][:fstep], user_msg: user_msg, user_key: user_key)
         bug_list.save
-        @next_msg, @next_keyboard = init_state("불편을 드려 죄송합니다.\n 다시 시도해 주세요.","init_status")
+        @next_msg, @next_keyboard = init_state("불편을 드려 죄송합니다.\n 다시 시도해 주세요.",user_key)
     end
     
     # ap " result >>>>>>"
@@ -451,9 +451,11 @@ ap @@user[user_key]
 
       if fstep == FUNC_STEP_INIT
         
-        if user.sido.nil? or user.sido_code.nil? or !corr_address(user)
+        if (user.sido.nil? or user.sido_code.nil? or 
+            user.emd.nil? or user.emd_code.nil?) or 
+            !corr_address(user)
      
-          text = (user.sido.nil? or user.sido == "") ? "주소를 등록해 주세요." : "#{user.sido} #{user.gu} #{user.sigun} #{user.emd}\n등록된 주소를 확인해 주세요."
+          text = (user.sido.nil? or user.sido == "") ? "[내 주소 확인하기] 메뉴에서\n 주소를 등록해 주세요." : "#{user.sido} #{user.gu} #{user.sigun} #{user.emd}\n등록된 주소를 확인해 주세요."
           @temp_msg, @temp_key = init_state(text,user_key)
         else
           @temp_msg, @temp_key = nextstepwithmsg("어떤 후보자를 찾고 있습니까?",@sun_code.keys, FUNC_STEP_CHOICE_SGCODE)
