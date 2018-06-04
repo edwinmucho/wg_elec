@@ -629,23 +629,28 @@ ap m_url
       "전북" => "667523", "전남" => "667538", "경북" => "667561", "경남" => "667585",
       "제주" => "667604"
     }
-    
+    isMsgBtn=false
     sido = User.where(user_key: user_key).pluck(:sido)[0]
     
-    code = (sido.length == 4) ? "#{sido[0]}#{sido[2]}" : "#{sido[0,2]}"
-
-    @temp_msg, @temp_key = init_state(user_key)
-    news_url = "http://election.daum.net/20180613/news/district/#{news_code[code]}"
-    temp = []
-    text = "#{sido} 지역 뉴스"
-    label = "#{sido} 지역 뉴스"
-    
-    temp.push(text)
-    temp.push(label)
-    temp.push(news_url)
-    
-    @temp_msg = temp  
-    return @temp_msg, @temp_key, isMsgBtn=true
+    if sido.nil?
+      @temp_msg, @temp_key = init_state("등록된 주소가 없습니다.\n [내 주소 확인하기] 메뉴에서\n주소를 등록해주세요.",user_key)
+    else
+      code = (sido.length == 4) ? "#{sido[0]}#{sido[2]}" : "#{sido[0,2]}"
+  
+      @temp_msg, @temp_key = init_state(user_key)
+      news_url = "http://election.daum.net/20180613/news/district/#{news_code[code]}"
+      temp = []
+      text = "#{sido} 지역 뉴스"
+      label = "#{sido} 지역 뉴스"
+      
+      temp.push(text)
+      temp.push(label)
+      temp.push(news_url)
+      
+      @temp_msg = temp  
+      isMsgBtn=true
+    end
+    return @temp_msg, @temp_key, 
 
   end
 ##################################################
