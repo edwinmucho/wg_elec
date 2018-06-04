@@ -650,7 +650,7 @@ ap m_url
       @temp_msg = temp  
       isMsgBtn=true
     end
-    return @temp_msg, @temp_key, 
+    return @temp_msg, @temp_key, isMsgBtn
 
   end
 ##################################################
