@@ -100,7 +100,7 @@ ap @@user[user_key]
           @next_msg, @next_keyboard, ismsgBtn = election_new(user_key)
         when MENU_STEP_CHEERUP
           @next_msg, @next_keyboard, ismsgBtn = checkCheerup(user_key)  
-        when MENU_MY_PLACE
+        when MENU_STEP_MY_PLACE
           @next_msg, @next_keyboard, ismsgBtn = findMyPlace(user_key)
         # when MENU_STEP_FIND_PLACE
         #   @next_msg, @next_keyboard, ismsgBtn = findPlace(user_key)
@@ -328,7 +328,7 @@ ap @@user[user_key]
             # user db 저장.
             user.save
           # info_emd 가 여러개인 경우 해당 동이 행정동에 묶여 있는 경우임.
-          elsif info_emd.size != 0
+          elsif info_emd.size > 1
             btn = []
             info_emd.each{|v| btn.push(v[1])}
             @temp_msg, @temp_key = button_confirm(@set_addr_menu,btn,FUNC_STEP_ADDRESS_CONFIRM)  
@@ -677,8 +677,8 @@ ap m_url
    
    link_url = "https://si.nec.go.kr/necsps/sps.SpsSrchVoterPolls.nec"
    
-   text = "내 투표소 찾기는 선거관리 홈페이지에서 확인 할 수 있습니다."
-   label = "내 투표소 찾기"
+   text = "내 투표소 찾기는 아래 링크에서 조회 할 수 있습니다."
+   label = "중앙선거관리위원회"
    
    temp.push(text)
    temp.push(label)
