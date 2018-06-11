@@ -11,8 +11,9 @@ class KakaoController < ApplicationController
   MENU_STEP_FIND_CANDI    = "후보자 찾기"
   MENU_STEP_ADDRESS       = "내 주소 확인하기"
   MENU_STEP_ADD_ADDRESS   = "내 주소 등록/수정"
-  MENU_STEP_FIND_PLACE = "사전투표소찾기"
-  MENU_STEP_ADDRESS_NEWS = "우리지역 선거 뉴스"
+  MENU_STEP_FIND_PLACE    = "사전투표소찾기"
+  MENU_STEP_MY_PLACE      = "내 투표소 찾기"
+  MENU_STEP_ADDRESS_NEWS  = "우리지역 선거 뉴스"
 
   MENU_STEP_CHEERUP = "우리지역 정당 응원 현황"
   
@@ -35,7 +36,9 @@ class KakaoController < ApplicationController
 
 # 챗봇 메인 메뉴! 여기에 추가하면 메뉴가 추가됨.
   @@main_menu = [MENU_STEP_FIND_CANDI, MENU_STEP_ADDRESS,
-                 MENU_STEP_FIND_PLACE, MENU_STEP_ADDRESS_NEWS]#, MENU_STEP_CHEERUP]
+                 MENU_STEP_MY_PLACE, MENU_STEP_ADDRESS_NEWS, MENU_STEP_CHEERUP]
+                # MENU_STEP_FIND_PLACE, MENU_STEP_ADDRESS_NEWS, MENU_STEP_CHEERUP]
+
   # 설명 문장.
   DESC_FOR_ADDRESS_FIRST = "해당 메뉴는 선거구 주소를 확인 및 등록, 수정을 할수 있습니다.\n(선거구 주소는 언제든지\n등록/수정할 수 있습니다.)"
 
@@ -76,6 +79,7 @@ class KakaoController < ApplicationController
     end
 ap "User stat >>>>"
 ap user_key
+ap user_msg
 ap @@user[user_key]
 
     # menu step 변경 하는 부분.
@@ -92,18 +96,19 @@ ap @@user[user_key]
           @next_msg, @next_keyboard, ismsgBtn = func_Address(user_msg)
         when MENU_STEP_FIND_CANDI
           @next_msg, @next_keyboard, ismsgBtn = findCandidate(user_msg)
-        when MENU_STEP_FIND_PLACE
-          @next_msg, @next_keyboard, ismsgBtn = findPlace(user_key)
         when MENU_STEP_ADDRESS_NEWS
           @next_msg, @next_keyboard, ismsgBtn = election_new(user_key)
         when MENU_STEP_CHEERUP
           @next_msg, @next_keyboard, ismsgBtn = checkCheerup(user_key)  
+        when MENU_MY_PLACE
+          @next_msg, @next_keyboard, ismsgBtn = findMyPlace(user_key)
+        # when MENU_STEP_FIND_PLACE
+        #   @next_msg, @next_keyboard, ismsgBtn = findPlace(user_key)
         # when MENU_STEP_ADD_ADDRESS
         #   @next_msg, @next_keyboard = setAddress(user_msg)
         # when MENU_STEP_CHECK_ADDRESS
         #   @next_msg, @next_keyboard = checkAddress(user_key)
         else
-          
       end
       
       # 에러 발생시 여기로 옴. #에러 로그를 여기서!
@@ -595,7 +600,7 @@ ap @@user[user_key]
     if not (total == 0 or user.nil?)
       name = (user.gu.nil? or user.gu == "") ? user.sigun : user.gu
       text = " - #{name} 정당별 응원 지수 -\n"
-      count_list = Jdcheer.where(gsg_code: user.gusigun_code).pluck(:jdname, :cheerup).sort_by{|jdname, cheerup| -cheerup}
+      count_list = Jdcheer.where(gsg_code: user.gusigun_code).group(:jdname).sum(:cheerup).sort_by{|jdname, cheerup| -cheerup}
       count_list.each do |jdname, cheerup|
         text += "#{jdname} : #{(cheerup * 100.0 / total).round(1)}% (#{cheerup}홧팅!)\n"
       end
@@ -664,4 +669,25 @@ ap m_url
   return @temp_msg, @temp_key
  end
   
+################################################
+
+ def findMyPlace(user_key)
+   temp = []
+   temp_msg, temp_key = init_state(user_key)
+   
+   link_url = "https://si.nec.go.kr/necsps/sps.SpsSrchVoterPolls.nec"
+   
+   text = "내 투표소 찾기는 선거관리 홈페이지에서 확인 할 수 있습니다."
+   label = "내 투표소 찾기"
+   
+   temp.push(text)
+   temp.push(label)
+   temp.push(link_url)
+   isMsgBtn = true
+   
+   temp_msg = temp
+   
+   return temp_msg, temp_key, isMsgBtn
+   
+ end
 end

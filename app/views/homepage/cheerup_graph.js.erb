@@ -1,0 +1,8 @@
+(function($){
+    <%if @cheer_list.length == 0%>
+        alert("해당지역은 아직 응원전이네요! 후보들을 응원해 보세요!");
+    <%else%>
+        var html = "<%= escape_javascript(render(partial: 'homepage/graph', locals: {chlist: @cheer_list})) %>";
+        $("#graph").append(html);
+    <%end%>
+})(jQuery)

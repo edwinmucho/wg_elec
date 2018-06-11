@@ -1,0 +1,6 @@
+<option value="">"- 전체 선택 -" </option>
+<%if not second_opt.nil? and second_opt.length != 0%>
+    <% second_opt.each do |value, name|%>
+         <option value=<%=value%>> <%=name%> </option>
+    <%end%>
+<%end%>

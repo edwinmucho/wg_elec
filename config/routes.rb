@@ -1,6 +1,13 @@
 Rails.application.routes.draw do
   get 'homepage/index' => 'homepage#index'
   get 'homepage/result/:user_id' => 'homepage#result'
+  
+  post 'homepage/cheerup_babe' => 'homepage#cheerup_babe'
+  get 'homepage/cheerup_result' => 'homepage#cheerup_result'
+  
+  get 'homepage/cheerup_graph' => 'homepage#cheerup_graph'
+  get 'homepage/second_dropdown' => 'homepage#second_dropdown'
+  
   get 'kakao/homepage' => 'kakao#homepage'
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   get '/keyboard' => 'kakao#keyboard'

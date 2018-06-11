@@ -3,7 +3,25 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script>
+    $('.follow-btn').click(function() {
 
+    var followd_id = $(this).data{"followed-id"};
+
+    $.ajax({
+        type: "POST",     //또는 GET, 라우터에서 설정한 걸로 하세요.
+        url: '/follows',     // request url
+        data: {
+            followd_id : followd_id
+        },
+        dataType: "script", // reponse는 script로
+        success: function() {
+           // 로딩창 숨기는거 넣으면 됩니다.
+        }
+    });
+
+}
+</script>
 <style>
 .container{
    display: grid;
@@ -53,7 +71,7 @@
   /* unnecessary styling properties */
   /*margin: 5%;*/
   /*width: 80%;*/
-  max-height: 0px;
+  max-height: 75px;
   padding-top: 0px;
   padding-bottom: 0px;
   
@@ -92,22 +110,20 @@ form{
 }
 
 .heart {
-  /*display: block;*/
+  display: inline;
   width: 100px;
   height: 100px;
   position: relative;
   left: 50%;
   top: 50%;
-  transform: translate(-5%, -100%);
+  transform: translate(-50%, 5%);
   background: url(https://cssanimation.rocks/images/posts/steps/heart.png) no-repeat;
   background-position: 0 0;
-  border: none;
-  outline:none;
   cursor: pointer;
   animation: fave-heart 1s steps(28);
 }
 
-.heart:hover {
+.heart:cursor {
   background-position: -2800px 0;
   transition: background 1s steps(28);
 }
@@ -125,13 +141,7 @@ form{
     /*border-top: 1px solid black;*/
     border-bottom: 1px solid black;
 }
-.form{
-    max-height: 0px;
-
-}
 </style>
-
-
 </head>
 <body>
 <% 
@@ -173,10 +183,9 @@ end%>
                 <!--<input id="toggle-heart" type="checkbox"/>-->
                 <!--<label for="toggle-heart">♥</label>-->
                 <!--<div class="heart">-->
-                 <%= button_to '', {:controller => "homepage", :action => "cheerup_babe", remote: true, :user_id=> @user.id, :jdname => @party, :sgtype => @parsed["hbjMap"][0]["SG_TYPECODE"], :hbname => @name} , {form_class: 'form' ,class: "heart"}  %>
-                 </div>
-             <!--</div>-->
-                <!--<div class= likeparty><%= @cu[@party]%></div>-->
+                 <%= button_to '',{:controller => "homepage", :action => "cheerup_babe", :user_id=> @user.id, :jdname => @party},{class: 'heart' , id:'btn'}  %>
+             </div>
+                <div class= likeparty><%= @cu[@party]%></div>
             <div class="card-header">  <%=@name%></div>
           <a href="<%=@link%>" class="button">후보 더 알아보기</a>
           <!--</div>-->
@@ -196,3 +205,11 @@ end%>
 
 
 
+<script>
+$(function(){
+  $('#like_button').on('click', function(e){
+    e.preventDefault();
+    console.log("Like Button Clicked");
+    })
+  }
+</script>

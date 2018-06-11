@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  gsg_code: MyString
+  jdname: MyString
+  ele_code: MyString
+  hubo: MyString
+  cheerup: 1
+
+two:
+  gsg_code: MyString
+  jdname: MyString
+  ele_code: MyString
+  hubo: MyString
+  cheerup: 1

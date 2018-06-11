@@ -45,6 +45,28 @@ ActiveRecord::Schema.define(version: 20180604055846) do
     t.index ["sido_id"], name: "index_gusiguns_on_sido_id"
   end
 
+  create_table "jdcheers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.bigint "gusigun_id"
+    t.string "gsg_code"
+    t.string "jdname"
+    t.string "ele_code"
+    t.string "hubo"
+    t.integer "cheerup"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["gusigun_id"], name: "index_jdcheers_on_gusigun_id"
+  end
+
+  create_table "jungdangs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.bigint "gusigun_id"
+    t.integer "cheerup"
+    t.string "jdname"
+    t.string "gsg_code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["gusigun_id"], name: "index_jungdangs_on_gusigun_id"
+  end
+
   create_table "sidos", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "wiwid"
     t.string "wiwname"
@@ -66,8 +88,13 @@ ActiveRecord::Schema.define(version: 20180604055846) do
     t.string "url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "clk_cnt"
+    t.integer "tdy_cnt"
+    t.integer "ttl_cnt"
   end
 
   add_foreign_key "emds", "gusiguns"
   add_foreign_key "gusiguns", "sidos"
+  add_foreign_key "jdcheers", "gusiguns"
+  add_foreign_key "jungdangs", "gusiguns"
 end

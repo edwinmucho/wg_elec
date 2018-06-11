@@ -36,3 +36,4 @@ public/assets/*
 /*.rb
 /app/controllers/*.backup.rb
 /app/views/homepage/*.1.erb
+/app/views/homepage/*.backup.erb

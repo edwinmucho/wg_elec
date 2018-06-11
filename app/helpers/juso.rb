@@ -94,9 +94,9 @@ module Juso
             
             # 다음에서 출력되는 주소 저장
             full_address, detail_dong = daum_map(keyword)
-# ap "search_addr >>>>"            
-# ap full_address
-# ap detail_dong
+ap "search_addr >>>>"            
+ap full_address
+ap detail_dong
 
             # 출력되는 주소를 도/시/구/동 으로 나누어 주는 부분.
             addr = split_address(full_address, detail_dong)
@@ -115,8 +115,8 @@ module Juso
             if chk_diff.length != 0 and not addr[:emd].include?chk_diff and not diff_except.include?addr[:emd]
                 addr[:emd] = addr[:emd].gsub(/[동|가]/,chk_diff)
             end
-# ap "addr>>>>"            
-# ap addr
+ap "addr>>>>"            
+ap addr
             return addr
     
         end

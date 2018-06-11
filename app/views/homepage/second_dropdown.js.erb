@@ -1,0 +1,4 @@
+(function($){
+    var html = "<%= escape_javascript(render(partial: 'homepage/option', locals: {second_opt: @second_option})) %>";
+    $("#gusigun").append(html);
+})(jQuery)

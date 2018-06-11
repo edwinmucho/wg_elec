@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<style>
+p{
+  text-align: center;
+}
+</style>
+</head>
+<body>
+ 
+<br/>
+<ul name="test"></ul>
+<br/>
+<br/>
+
+<%= form_tag "cheerup_graph", method: "get", remote: true do %>
+<%= select_tag(:sido_code, options_from_collection_for_select(@sido_option, :wiwid, :wiwname), prompt: "- 전체 선택 -",
+    data:{
+        remote: true,
+        url: 'second_dropdown',
+        method: 'get'
+    },
+    :onchange => "$(\"#gusigun option\").remove();"
+    )%>
+<%= select_tag(:gusigun, options_from_collection_for_select(@gsg_option, :wiwid, :townname), include_blank: "- 전체 선택 -")%>
+<%= submit_tag "좋아요 조회"%>
+<%end%> 
+<div id="graph"></div>
