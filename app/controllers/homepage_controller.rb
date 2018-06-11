@@ -113,6 +113,10 @@ ap hbname
   def cheerup_graph
     sido_code = params[:sido_code]
     gsg_code = params[:gusigun]
+
+# ap "그래프>>>>>>>"
+# ap sido_code
+# ap gsg_code
     
     # 전국 단위 확인.
     if sido_code.nil? or sido_code.length == 0
@@ -120,13 +124,13 @@ ap hbname
       @cheer_list = Jdcheer.group(:jdname).sum(:cheerup).sort_by{|x,y| -y}
     # 광역시/ 도별 확인.
     elsif gsg_code.nil? or gsg_code.length == 0
-    ap "시도"
+      ap "시도"
       temp_list = Jdcheer.group(:gsg_code, :jdname).sum(:cheerup).sort_by{|x,y| -y}
+
       temp={}
       
       temp_list.each do |local, cheer|
-        
-        if sido_code[0,1] == local[0][0,1]
+        if sido_code[0,2] == local[0][0,2]
           if temp[local[1]].nil?
             temp[local[1]] = cheer
           else
